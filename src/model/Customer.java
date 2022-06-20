@@ -52,8 +52,8 @@ public class Customer {
     @Override
     public String toString() {
         return "model.Customer{" +
-                "name='" + name + '\'' +
-                ", pin='" + pin + '\'' +
+                "name=" + name  +
+                ", pin=" + pin  +
                 ", balance=" + balance +
                 ", accountNumber=" + accountNumber +
                 "}\n";
