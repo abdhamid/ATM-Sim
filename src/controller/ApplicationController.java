@@ -2,19 +2,29 @@ package controller;
 
 import helper.InputValidationHelper;
 import model.Customer;
+import service.CustomerService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Scanner;
 
 import static helper.RefIdHelper.generateRefId;
 
 public class ApplicationController {
+    private final CustomerService customerService;
     static final int MAX_TRANSFER = 1000;
     static final int MIN_TRANSFER = 1;
-    public static void welcomeScreen(Scanner scanner, List<Customer> customers) {
+    List<Customer> customers = new ArrayList<>();
+
+    public ApplicationController() {
+        customers.add(new Customer("John Doe", "012108", 100., "112233"));
+        customers.add(new Customer("Jane Doe", "932012", 30., "112244"));
+        this.customerService = new CustomerService(customers);
+    }
+
+    public void welcomeScreen(Scanner scanner) {
         while (true) {
             String accountNumber = null;
             while (accountNumber==null) {
@@ -32,22 +42,19 @@ public class ApplicationController {
 
             String finalAccountNumber = accountNumber;
             String finalAccountPIN = accountPIN;
-            Customer customer = customers.stream()
-                    .filter(cust -> Objects.equals(cust.getAccountNumber(), finalAccountNumber))
-                    .filter(cust -> Objects.equals(cust.getPin(), finalAccountPIN))
-                    .findFirst()
-                    .orElse(null);
+
+            Customer customer = customerService.setCurrentCustomer(finalAccountNumber, finalAccountPIN);
 
             if (customer != null) {
                 System.out.println("Login successful");
-                transactionScreen(scanner, customers, customer);
+                transactionScreen(scanner, customer);
             } else {
                 System.out.println("Invalid Account Number/PIN");
             }
         }
     }
 
-    public static void transactionScreen(Scanner scanner, List<Customer> customers, Customer customer) {
+    public void transactionScreen(Scanner scanner, Customer customer) {
 
         String option = null;
         while (option==null) {
@@ -62,13 +69,13 @@ public class ApplicationController {
         }
 
         switch (Integer.parseInt(option)) {
-            case 1 -> withdrawScreen(scanner, customers, customer);
-            case 2 -> fundTransferScreen(scanner, customers, customer);
-            case 3 -> welcomeScreen(scanner, customers);
+            case 1 -> withdrawScreen(scanner, customer);
+            case 2 -> fundTransferScreen(scanner, customer);
+            case 3 -> welcomeScreen(scanner);
         }
     }
 
-    public static void withdrawScreen(Scanner scanner, List<Customer> customers, Customer customer) {
+    public void withdrawScreen(Scanner scanner, Customer customer) {
         String withdrawOption = null;
         while (withdrawOption == null) {
             System.out.print("""
@@ -99,7 +106,7 @@ public class ApplicationController {
                 }
                 withdrawAmount = Integer.parseInt(amountStr);
             }
-            case 5 -> transactionScreen(scanner, customers, customer);
+            case 5 -> transactionScreen(scanner, customer);
             default -> System.out.println("Unknown command");
         }
         if (withdrawAmount > 0) {
@@ -110,13 +117,14 @@ public class ApplicationController {
                 summaryScreen(scanner, customers, customer, withdrawAmount);
             } else {
                 System.out.println("Insufficient balance $" + customer.getBalance());
+                transactionScreen(scanner, customer);
             }
         } else {
             System.out.println("Invalid amount");
         }
     }
 
-    public static void summaryScreen(Scanner scanner, List<Customer> customers, Customer customer, int withdrawAmount) {
+    public void summaryScreen(Scanner scanner, List<Customer> customers, Customer customer, int withdrawAmount) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
         System.out.println("\nSummary\n" +
                 "Date : " + LocalDateTime.now().format(dtf) + "\n" +
@@ -135,33 +143,30 @@ public class ApplicationController {
         }
 
         switch (Integer.parseInt(option)) {
-            case 1 -> transactionScreen(scanner, customers, customer);
-            case 2 -> welcomeScreen(scanner, customers);
+            case 1 -> transactionScreen(scanner, customer);
+            case 2 -> welcomeScreen(scanner);
         }
 
     }
 
-    public static void fundTransferScreen(Scanner scanner, List<Customer> customers, Customer customer) {
+    public void fundTransferScreen(Scanner scanner, Customer customer) {
         Customer destCustomer;
+
         while (true) {
-            System.out.print("" +
-                    "Please enter destination account and \n" +
-                    "press enter to continue : ");
+            String destAccountNum = null;
+            while (destAccountNum == null) {
+                System.out.print("""
 
-            String destAccountNum = scanner.nextLine();
-
-            if (!destAccountNum.matches("[0-9]+")) {
-                System.out.println("Invalid account");
-            } else {
-                destCustomer = customers.stream()
-                        .filter(cust -> Objects.equals(cust.getAccountNumber(), destAccountNum))
-                        .findFirst()
-                        .orElse(null);
-
-                if (destCustomer == null) {
-                    System.out.println("Invalid account");
-                } else break;
+                        Please enter destination account and\s
+                        press enter to continue :\s""");
+                destAccountNum = scanner.nextLine();
+                destAccountNum = InputValidationHelper.validateAccount(destAccountNum, "NUMBER");
             }
+            destCustomer = customerService.getDestinationAccount(customer, destAccountNum);
+
+            if (destCustomer == null) {
+                System.out.println("Invalid account");
+            } else break;
         }
 
         String transferAmountInput = null;
@@ -208,14 +213,14 @@ public class ApplicationController {
                     }
 
                     switch (Integer.parseInt(summaryOption)) {
-                        case 1 -> transactionScreen(scanner, customers, customer);
-                        case 2 -> welcomeScreen(scanner, customers);
+                        case 1 -> transactionScreen(scanner, customer);
+                        case 2 -> welcomeScreen(scanner);
                     }
                 } else {
                     System.out.println("Insufficient balance $" + customer.getBalance());
                 }
             }
-            case 2 -> fundTransferScreen(scanner, customers, customer);
+            case 2 -> fundTransferScreen(scanner, customer);
         }
     }
 
