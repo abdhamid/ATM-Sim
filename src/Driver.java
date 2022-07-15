@@ -12,7 +12,7 @@ import static dao.TransactionDao.writeTransactionCSV;
 import static service.ApplicationService.transactionHistory;
 
 
-public class Application {
+public class Driver {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
         final String CUSTOMER_PATH = "D:\\Work\\Training\\Java\\ATM-Sim\\db.csv";
