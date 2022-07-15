@@ -1,6 +1,5 @@
 package service;
 
-import dao.CustomerDao;
 import helper.TableHelper;
 import model.Customer;
 import model.Transaction;
@@ -8,9 +7,8 @@ import model.Transaction;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class CustomerService {
+public class ApplicationService {
     static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
 
 

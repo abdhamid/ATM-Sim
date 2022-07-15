@@ -1,6 +1,6 @@
 import model.Customer;
 import model.Transaction;
-import service.CustomerService;
+import service.ApplicationService;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.Scanner;
 import static dao.CustomerDao.readCustomerCSV;
 import static dao.TransactionDao.readTransactionCSV;
 import static dao.TransactionDao.writeTransactionCSV;
-import static service.CustomerService.transactionHistory;
+import static service.ApplicationService.transactionHistory;
 
 
 public class Application {
@@ -24,7 +24,7 @@ public class Application {
         boolean loggedIn = false;
         boolean exit = false;
         while (!loggedIn) {
-            currentCust = CustomerService.login(scanner, customers, currentCust);
+            currentCust = ApplicationService.login(scanner, customers, currentCust);
             loggedIn = true;
         }
 
@@ -49,7 +49,7 @@ public class Application {
 
             switch (optionNum) {
                 case 1 -> {
-                    Transaction transaction = CustomerService.withdraw(scanner, currentCust);
+                    Transaction transaction = ApplicationService.withdraw(scanner, currentCust);
                     System.out.println(transaction);
                     if (transaction != null) {
                         transactions.add(transaction);
@@ -57,7 +57,7 @@ public class Application {
                     }
                 }
                 case 2-> {
-                    List<Transaction> transfer = CustomerService.transfer(scanner, customers, currentCust);
+                    List<Transaction> transfer = ApplicationService.transfer(scanner, customers, currentCust);
                     if (transfer != null) {
                         transactions.add(transfer.get(0));
                         transactions.add(transfer.get(1));
