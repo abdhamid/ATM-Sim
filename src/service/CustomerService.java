@@ -1,15 +1,20 @@
 package service;
 
+import dao.CustomerDao;
 import model.Customer;
 
 import java.util.List;
 import java.util.Objects;
 
+import static config.FileConfiguration.CUSTOMER_PATH;
+
 public class CustomerService {
+    private final CustomerDao customerDao;
     private final List<Customer> customers;
 
-    public CustomerService(List<Customer> customers) {
-        this.customers = customers;
+    public CustomerService() {
+        this.customerDao = new CustomerDao();
+        this.customers = customerDao.readCustomerCSV(CUSTOMER_PATH);
     }
 
     public List<Customer> getAll() {

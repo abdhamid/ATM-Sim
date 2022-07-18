@@ -1,6 +1,5 @@
 package dao;
 
-import model.Customer;
 import model.Transaction;
 
 import java.io.*;
@@ -10,7 +9,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class TransactionDao {
-    public static List<Transaction> readTransactionCSV(String path) {
+    public List<Transaction> readTransactionCSV(String path) {
         List<Transaction> transactions = new ArrayList<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
@@ -35,27 +34,31 @@ public class TransactionDao {
         return transactions;
     }
 
-    public static void writeTransactionCSV(List<Transaction> transactions, String path) throws IOException {
-        List<String> toWrite = transactions.stream()
-                .map(transaction -> {
-                    return new String[]{
-                            String.valueOf(transaction.getRefId()),
-                            transaction.getTransactionType(),
-                            transaction.getTransactionCreator(),
-                            String.valueOf(transaction.getAmount()),
-                            String.valueOf(transaction.getTimestamp())
-                    };
-                })
-                .map(data -> String.join(",", data)).toList();
-        String[] header = {"referenceNumber", "type", "accountNumber", "amount", "timestamp"};
-        BufferedWriter writer = new BufferedWriter(new FileWriter(path));
-        writer.write(String.join(",", header));
-        writer.newLine();
-        for (String s : toWrite) {
-            writer.write(s);
+    public void writeTransactionCSV(List<Transaction> transactions, String path) {
+        try {
+            List<String> toWrite = transactions.stream()
+                    .map(transaction -> {
+                        return new String[]{
+                                String.valueOf(transaction.getRefId()),
+                                transaction.getTransactionType(),
+                                transaction.getTransactionCreator(),
+                                String.valueOf(transaction.getAmount()),
+                                String.valueOf(transaction.getTimestamp())
+                        };
+                    })
+                    .map(data -> String.join(",", data)).toList();
+            String[] header = {"referenceNumber", "type", "accountNumber", "amount", "timestamp"};
+            BufferedWriter writer = new BufferedWriter(new FileWriter(path));
+            writer.write(String.join(",", header));
             writer.newLine();
+            for (String s : toWrite) {
+                writer.write(s);
+                writer.newLine();
+            }
+            writer.close();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
-        writer.close();
     }
 }
 

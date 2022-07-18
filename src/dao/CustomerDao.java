@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class CustomerDao {
-    public static List<Customer> readCustomerCSV(String path) {
+    public List<Customer> readCustomerCSV(String path) {
         List<Customer> customers = new ArrayList<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
