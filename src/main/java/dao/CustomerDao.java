@@ -2,12 +2,11 @@ package dao;
 
 import model.Customer;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+
 
 public class CustomerDao {
     public List<Customer> readCustomerCSV(String path) {
@@ -32,8 +31,30 @@ public class CustomerDao {
         return customers;
     }
 
-    public static void writeCSV() {
-
+    public static void writeCSV(List<Customer> customers, String path) {
+        try {
+            List<String> toWrite = customers.stream()
+                    .map(customer -> {
+                        return new String[]{
+                                customer.getName(),
+                                String.valueOf(customer.getPin()),
+                                String.valueOf(customer.getBalance()),
+                                String.valueOf(customer.getAccountNumber())
+                        };
+                    })
+                    .map(data -> String.join(",", data)).toList();
+            String[] header = {"name", "pin", "balance", "accountNumber"};
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
+                writer.write(String.join(",", header));
+                writer.newLine();
+                for (String s : toWrite) {
+                    writer.write(s);
+                    writer.newLine();
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 

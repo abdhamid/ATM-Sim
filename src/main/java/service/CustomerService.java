@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Objects;
 
 import static config.FileConfiguration.CUSTOMER_PATH;
+import static dao.CustomerDao.writeCSV;
 
 public class CustomerService {
-    private final CustomerDao customerDao;
     private final List<Customer> customers;
 
     public CustomerService() {
-        this.customerDao = new CustomerDao();
+        CustomerDao customerDao = new CustomerDao();
         this.customers = customerDao.readCustomerCSV(CUSTOMER_PATH);
     }
 
@@ -41,5 +41,31 @@ public class CustomerService {
             System.out.println("Can't transfer to your own account");
             return null;
         } else return getByAccNumber(destinationAccountNumber);
+    }
+
+    public void addNewCustomer(Customer customer) {
+        Customer dups = customers.stream()
+                .filter(customer::equals)
+                .findAny()
+                .orElse(null);
+
+        if (dups==null) System.out.println("duplicate customer");
+        else {
+            customers.add(customer);
+            writeCSV(customers, CUSTOMER_PATH);
+        }
+    }
+
+    public void updateCustomer(Customer customer) {
+        Customer updated = customers.stream()
+                .filter(customer::equals)
+                .findAny()
+                .orElse(null);
+
+        if (updated==null) System.out.println("Can't find customer");
+        else {
+            customers.add(customer);
+            writeCSV(customers, CUSTOMER_PATH);
+        }
     }
 }
