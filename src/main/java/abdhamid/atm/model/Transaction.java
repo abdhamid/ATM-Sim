@@ -1,4 +1,4 @@
-package model;
+package abdhamid.atm.model;
 
 import java.time.LocalDateTime;
 import java.util.Random;

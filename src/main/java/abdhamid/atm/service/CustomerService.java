@@ -1,13 +1,13 @@
-package service;
+package abdhamid.atm.service;
 
-import dao.CustomerDao;
-import model.Customer;
+import abdhamid.atm.dao.CustomerDao;
+import abdhamid.atm.model.Customer;
 
 import java.util.List;
 import java.util.Objects;
 
-import static config.FileConfiguration.CUSTOMER_PATH;
-import static dao.CustomerDao.writeCSV;
+import static abdhamid.atm.config.FileConfiguration.CUSTOMER_PATH;
+import static abdhamid.atm.dao.CustomerDao.writeCSV;
 
 public class CustomerService {
     private final List<Customer> customers;

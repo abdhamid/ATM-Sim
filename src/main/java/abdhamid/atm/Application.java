@@ -1,10 +1,13 @@
-import controller.ApplicationController;
+package abdhamid.atm;
+
+import abdhamid.atm.controller.ApplicationController;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
-
+@SpringBootApplication
 class Application {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);

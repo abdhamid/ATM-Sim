@@ -1,6 +1,6 @@
-package dao;
+package abdhamid.atm.dao;
 
-import model.Customer;
+import abdhamid.atm.model.Customer;
 
 import java.io.*;
 import java.util.ArrayList;

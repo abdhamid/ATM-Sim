@@ -1,4 +1,4 @@
-package config;
+package abdhamid.atm.config;
 
 public class FileConfiguration {
     public static final String CUSTOMER_PATH = "./db.csv";

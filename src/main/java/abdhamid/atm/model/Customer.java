@@ -1,4 +1,4 @@
-package model;
+package abdhamid.atm.model;
 
 public class Customer {
     private String name;
@@ -51,7 +51,7 @@ public class Customer {
 
     @Override
     public String toString() {
-        return "model.Customer{" +
+        return "abdhamid.atm.model.Customer{" +
                 "name=" + name  +
                 ", pin=" + pin  +
                 ", balance=" + balance +

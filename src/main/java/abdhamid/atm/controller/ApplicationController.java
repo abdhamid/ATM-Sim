@@ -1,15 +1,15 @@
-package controller;
+package abdhamid.atm.controller;
 
-import helper.InputValidationHelper;
-import model.Customer;
-import service.TransactionService;
-import service.CustomerService;
+import abdhamid.atm.helper.InputValidationHelper;
+import abdhamid.atm.model.Customer;
+import abdhamid.atm.service.TransactionService;
+import abdhamid.atm.service.CustomerService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
-import static helper.RefIdHelper.generateRefId;
+import static abdhamid.atm.helper.RefIdHelper.generateRefId;
 
 public class ApplicationController {
     private final CustomerService customerService;
@@ -51,11 +51,6 @@ public class ApplicationController {
             case 3 -> transactionHistoryScreen(scanner, customer);
             default -> welcomeScreen(scanner);
         }
-    }
-
-    private void transactionHistoryScreen(Scanner scanner, Customer customer) {
-        transactionService.transactionHistory(customer);
-        transactionScreen(scanner, customer);
     }
 
     public void withdrawScreen(Scanner scanner, Customer customer) {
@@ -199,6 +194,11 @@ public class ApplicationController {
             }
             case 2 -> fundTransferScreen(scanner, customer);
         }
+    }
+
+    private void transactionHistoryScreen(Scanner scanner, Customer customer) {
+        transactionService.transactionHistory(customer);
+        transactionScreen(scanner, customer);
     }
 
 }

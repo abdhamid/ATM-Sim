@@ -1,6 +1,6 @@
-package dao;
+package abdhamid.atm.dao;
 
-import model.Transaction;
+import abdhamid.atm.model.Transaction;
 
 import java.io.*;
 import java.time.LocalDateTime;
