@@ -1,6 +1,5 @@
 package abdhamid.atm.controller;
 
-import abdhamid.atm.helper.InputValidationHelper;
 import abdhamid.atm.model.Customer;
 import abdhamid.atm.service.TransactionService;
 import abdhamid.atm.service.CustomerService;
@@ -10,14 +9,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 import static abdhamid.atm.helper.RefIdHelper.generateRefId;
-import static abdhamid.atm.helper.ScannerHelper.amountScanner;
-import static abdhamid.atm.helper.ScannerHelper.customerScanner;
+import static abdhamid.atm.helper.ScannerHelper.*;
 
 public class ApplicationController {
     private final CustomerService customerService;
     private final TransactionService transactionService;
-    static final int MAX_TRANSFER = 1000;
-    static final int MIN_TRANSFER = 1;
 
     public ApplicationController() {
         this.customerService = new CustomerService();
@@ -33,21 +29,17 @@ public class ApplicationController {
     }
 
     public void transactionScreen(Scanner scanner, Customer customer) {
-
-        String option = null;
-        while (option == null) {
-            System.out.print("""
+        String transactionMenu = """
 
                     1. Withdraw
                     2. Fund Transfer
                     3. Transaction History
                     4. Exit
-                    Please choose option[3]:\040""");
-            String input = scanner.nextLine();
-            option = InputValidationHelper.validateOption(input, 1, 4);
-        }
+                    Please choose option[3]:\040""";
 
-        switch (Integer.parseInt(option)) {
+        int option = optionScanner(scanner, 1, 4, transactionMenu);
+
+        switch (option) {
             case 1 -> withdrawScreen(scanner, customer);
             case 2 -> fundTransferScreen(scanner, customer);
             case 3 -> transactionHistoryScreen(scanner, customer);
@@ -56,21 +48,17 @@ public class ApplicationController {
     }
 
     public void withdrawScreen(Scanner scanner, Customer customer) {
-
-        String withdrawOption = null;
-        while (withdrawOption == null) {
-            System.out.print("""
+        String withdrawMenu = """
                                             
                     1. $10
                     2. $50
                     3. $100
                     4. Other
                     5. Back
-                    Please choose option[5]:\040""");
-            String input = scanner.nextLine();
-            withdrawOption = InputValidationHelper.validateOption(input, 1, 5);
-        }
-        switch (Integer.parseInt(withdrawOption)) {
+                    Please choose option[5]:\040""";
+        int withdrawOption = optionScanner(scanner, 1, 5, withdrawMenu);
+
+        switch (withdrawOption) {
             case 1 -> {
                 if (transactionService.withdraw(10, customer)) {
                     summaryScreen(scanner, customer, 10);
@@ -93,16 +81,12 @@ public class ApplicationController {
     }
 
     public void otherWithdrawScreen(Scanner scanner, Customer customer) {
-        String amountStr = null;
-        while (amountStr == null) {
-            System.out.println("""
+        String withdrawAmountMenu = """
 
-                    Other Withdraw
-                    Enter amount to withdraw:\s""");
-            String input = scanner.nextLine();
-            amountStr = InputValidationHelper.validateTransferAmount(input, MIN_TRANSFER, MAX_TRANSFER);
-        }
-        int withdrawAmount = Integer.parseInt(amountStr);
+                      Other Withdraw
+                      Enter amount to withdraw:\s""";
+        int withdrawAmount = amountScanner(scanner, withdrawAmountMenu);
+
         if (transactionService.withdraw(withdrawAmount, customer)) {
             summaryScreen(scanner, customer, withdrawAmount);
         } else transactionScreen(scanner, customer);
@@ -115,18 +99,14 @@ public class ApplicationController {
                 "Withdraw : " + withdrawAmount + "\n" +
                 "Balance : " + customer.getBalance());
 
-        String option = null;
-        while (option == null) {
-            System.out.println("""
+        String summaryMenu = """
                                     
                     1. Transaction\s
                     2. Exit
-                    Choose option[2]:""");
-            String input = scanner.nextLine();
-            option = InputValidationHelper.validateOption(input, 1, 2);
-        }
+                    Choose option[2]:""";
+        int summaryOption = optionScanner(scanner, 1, 2, summaryMenu);
 
-        switch (Integer.parseInt(option)) {
+        switch (summaryOption) {
             case 1 -> transactionScreen(scanner, customer);
             case 2 -> welcomeScreen(scanner);
         }
@@ -135,52 +115,49 @@ public class ApplicationController {
 
     public void fundTransferScreen(Scanner scanner, Customer customer) {
         Customer destCustomer;
-
+        String fundTransferCustomerMenu = """
+                          
+                          Please enter destination account and\s
+                          press enter to continue :\s""";
         while (true) {
-            String destAccountNum = customerScanner(scanner);
+            String destAccountNum = customerScanner(scanner, fundTransferCustomerMenu);
             destCustomer = customerService.getDestinationAccount(customer, destAccountNum);
 
             if (destCustomer == null) {
                 System.out.println("Invalid account");
             } else break;
         }
-
-        int transferAmount = amountScanner(scanner);
+        String fundTransferAmountMenu = "\nPlease enter transfer amount and press enter to continue : ";
+        int transferAmount = amountScanner(scanner, fundTransferAmountMenu);
 
         int refNumber = generateRefId();
-        String transferOption = null;
-        while (transferOption == null) {
-            System.out.print("\nTransfer Confirmation\n" +
-                    "Destination Account : " + destCustomer.getAccountNumber() + " \n" +
-                    "Transfer Amount     : $" + transferAmount + "\n" +
-                    "Reference Number    : " + String.format("%06d", refNumber) + "\n" +
-                    "\n" +
-                    "1. Confirm Trx\n" +
-                    "2. Cancel Trx\n" +
-                    "Choose option[2]: ");
-            String input = scanner.nextLine();
-            transferOption = InputValidationHelper.validateOption(input, 1, 3);
-        }
-        switch (Integer.parseInt(transferOption)) {
+
+        String fundTransferConfirmationMenu = "\nTransfer Confirmation\n" +
+                "Destination Account : " + destCustomer.getAccountNumber() + " \n" +
+                "Transfer Amount     : $" + transferAmount + "\n" +
+                "Reference Number    : " + String.format("%06d", refNumber) + "\n" +
+                "\n" +
+                "1. Confirm Trx\n" +
+                "2. Cancel Trx\n" +
+                "Choose option[2]: ";
+        int transferOption = optionScanner(scanner, 1, 3, fundTransferConfirmationMenu);
+
+        switch (transferOption) {
             case 1 -> {
                 if(transactionService.transfer(customer, destCustomer, transferAmount, refNumber)) {
-                    String summaryOption = null;
-                    while (summaryOption == null) {
-                        System.out.println("""
+                    String transferSummaryMenu = """
                                 1. Transaction
                                 2. Exit
-                                Choose option[2]:\s""");
-                        String input = scanner.nextLine();
-                        summaryOption = InputValidationHelper.validateOption(input, 1, 2);
-                    }
+                                Choose option[2]:\s""";
+                    int transferSummaryOption = optionScanner(scanner, 1, 2, transferSummaryMenu);
 
-                    switch (Integer.parseInt(summaryOption)) {
+                    switch (transferSummaryOption) {
                         case 1 -> transactionScreen(scanner, customer);
-                        case 2 -> welcomeScreen(scanner);
+                        default -> welcomeScreen(scanner);
                     }
                 } else transactionScreen(scanner, customer);
             }
-            case 2 -> fundTransferScreen(scanner, customer);
+            default -> fundTransferScreen(scanner, customer);
         }
     }
 
