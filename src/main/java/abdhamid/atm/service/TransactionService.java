@@ -5,6 +5,7 @@ import abdhamid.atm.helper.InputValidationHelper;
 import abdhamid.atm.helper.TableHelper;
 import abdhamid.atm.model.Customer;
 import abdhamid.atm.model.Transaction;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -12,6 +13,7 @@ import java.util.*;
 
 import static abdhamid.atm.config.FileConfiguration.TRANSACTION_PATH;
 
+@Service
 public class TransactionService {
     private final CustomerService customerService;
     private final TransactionDao transactionDao;

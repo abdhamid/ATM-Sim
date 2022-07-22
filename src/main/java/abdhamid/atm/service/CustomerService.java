@@ -2,6 +2,7 @@ package abdhamid.atm.service;
 
 import abdhamid.atm.dao.CustomerDao;
 import abdhamid.atm.model.Customer;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
@@ -9,6 +10,7 @@ import java.util.Objects;
 import static abdhamid.atm.config.FileConfiguration.CUSTOMER_PATH;
 import static abdhamid.atm.dao.CustomerDao.writeCSV;
 
+@Service
 public class CustomerService {
     private final List<Customer> customers;
 
