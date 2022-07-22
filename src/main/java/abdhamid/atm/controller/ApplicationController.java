@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 import static abdhamid.atm.helper.RefIdHelper.generateRefId;
+import static abdhamid.atm.helper.ScannerHelper.amountScanner;
+import static abdhamid.atm.helper.ScannerHelper.customerScanner;
 
 public class ApplicationController {
     private final CustomerService customerService;
@@ -135,15 +137,7 @@ public class ApplicationController {
         Customer destCustomer;
 
         while (true) {
-            String destAccountNum = null;
-            while (destAccountNum == null) {
-                System.out.print("""
-
-                        Please enter destination account and\s
-                        press enter to continue :\s""");
-                destAccountNum = scanner.nextLine();
-                destAccountNum = InputValidationHelper.validateAccount(destAccountNum, "NUMBER");
-            }
+            String destAccountNum = customerScanner(scanner);
             destCustomer = customerService.getDestinationAccount(customer, destAccountNum);
 
             if (destCustomer == null) {
@@ -151,13 +145,7 @@ public class ApplicationController {
             } else break;
         }
 
-        String transferAmountInput = null;
-        while (transferAmountInput == null) {
-            System.out.print("Please enter transfer amount and press enter to continue : ");
-            String input = scanner.nextLine();
-            transferAmountInput = InputValidationHelper.validateTransferAmount(input, MIN_TRANSFER, MAX_TRANSFER);
-        }
-        int transferAmount = Integer.parseInt(transferAmountInput);
+        int transferAmount = amountScanner(scanner);
 
         int refNumber = generateRefId();
         String transferOption = null;
@@ -190,7 +178,7 @@ public class ApplicationController {
                         case 1 -> transactionScreen(scanner, customer);
                         case 2 -> welcomeScreen(scanner);
                     }
-                }
+                } else transactionScreen(scanner, customer);
             }
             case 2 -> fundTransferScreen(scanner, customer);
         }

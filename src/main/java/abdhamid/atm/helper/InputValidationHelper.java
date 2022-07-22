@@ -15,8 +15,11 @@ public class InputValidationHelper {
     }
 
     public static String validateTransferAmount(String amount, int min, int max) {
-        if (!amount.matches("\\d+") || Integer.parseInt(amount)%10 != 0) {
+        if (!amount.matches("\\d+")) {
             System.out.println("Invalid amount");
+        }
+        else if (Integer.parseInt(amount)%10 != 0) {
+            System.out.println("Amount must be in a multiple of 10");
         }
         else if (Integer.parseInt(amount) > max) {
             System.out.println("Maximum amount to transfer is $1000");
