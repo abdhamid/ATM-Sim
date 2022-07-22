@@ -58,58 +58,6 @@ public class TransactionService {
         return customer;
     }
 
-    //withdraw
-//    public static Transaction withdraw(Scanner scanner, Customer customer) {
-//
-//        System.out.print("""
-//
-//                1. $10
-//                2. $50
-//                3. $100
-//                4. Other
-//                5. Back
-//                Please choose option[5]:\040""");
-//        int withdrawOptionNum = 0;
-//        String withdrawOption = scanner.nextLine();
-//        if (!withdrawOption.matches("[1-5]+") || "".equals(withdrawOption)) {
-//            withdrawOptionNum = 5;
-//        } else {
-//            withdrawOptionNum = Integer.parseInt(withdrawOption);
-//        }
-//        int withdrawAmount = 0;
-//        switch (withdrawOptionNum) {
-//            case 1 -> withdrawAmount = 10;
-//            case 2 -> withdrawAmount = 50;
-//            case 3 -> withdrawAmount = 100;
-//            case 4 -> {
-//                System.out.println("Other Withdraw\n" +
-//                        "Enter amount to withdraw: ");
-//                try {
-//                    withdrawAmount = scanner.nextInt();
-//                } catch (Exception exception) {
-//                    System.out.println("Invalid amount");
-//                }
-//            }
-//            default -> System.out.println("Invalid command");
-//        }
-//        LocalDateTime timestamp = LocalDateTime.now();
-//        if (withdrawAmount > 0) {
-//            if (withdrawAmount % 10 != 0) System.out.println("Invalid amount");
-//            else if (withdrawAmount > 1000) System.out.println("Maximum amount to withdraw is $1000");
-//            else if (customer.getBalance() >= withdrawAmount) {
-//                customer.setBalance(customer.getBalance() - (double) withdrawAmount);
-//                System.out.println("\nSummary\n" +
-//                        "Date : " + timestamp.format(dtf) + "\n" +
-//                        "Withdraw : " + withdrawAmount + "\n" +
-//                        "Balance : " + customer.getBalance());
-//                return new Transaction(Transaction.generateRefId(), "DEBIT", customer.getAccountNumber(), (double) withdrawAmount, timestamp);
-//            } else {
-//                System.out.println("Insufficient balance $" + customer.getBalance());
-//            }
-//        }
-//        return null;
-//    }
-
     public boolean withdraw(Integer withdrawAmount, Customer customer) {
         if (withdrawAmount > 0) {
             if (withdrawAmount % 10 != 0) System.out.println("Invalid amount");
@@ -150,7 +98,6 @@ public class TransactionService {
         }
     }
 
-    //transfer
     //list 10 last transaction
     public void transactionHistory(Customer customer) {
         List<Transaction> customerTransaction = transactions.stream()

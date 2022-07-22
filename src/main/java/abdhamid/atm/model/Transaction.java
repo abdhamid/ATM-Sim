@@ -1,9 +1,17 @@
 package abdhamid.atm.model;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+@Entity
 public class Transaction {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     private int refId;
     private String transactionType;
     private String transactionCreator;
@@ -76,5 +84,13 @@ public class Transaction {
     public static int generateRefId() {
         Random rnd = new Random();
         return rnd.nextInt(999999);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
