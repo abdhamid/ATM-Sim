@@ -1,5 +1,6 @@
 package abdhamid.atm.controller;
 
+import abdhamid.atm.helper.InputValidationHelper;
 import abdhamid.atm.model.Customer;
 import abdhamid.atm.service.TransactionService;
 import abdhamid.atm.service.CustomerService;
@@ -21,11 +22,16 @@ public class ApplicationController {
     }
 
     public void welcomeScreen(Scanner scanner) {
-        Customer customer = null;
-        while (customer == null) {
-            customer = transactionService.login(scanner);
-        }
-        transactionScreen(scanner, customer);
+        String loginAccMenu = "Enter Account Number    : ";
+        String accountNumber = customerScanner(scanner, loginAccMenu);
+
+        String loginPinMenu = "Enter PIN   : ";
+        String accountPIN = pinScanner(scanner, loginPinMenu);
+
+        Customer customer = transactionService.login(accountNumber, accountPIN);
+        if (customer!= null) {
+            transactionScreen(scanner, customer);
+        } else welcomeScreen(scanner);
     }
 
     public void transactionScreen(Scanner scanner, Customer customer) {

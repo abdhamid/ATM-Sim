@@ -32,32 +32,17 @@ public class TransactionService {
 
 
     //login
-    public Customer login(Scanner scanner) {
-
-        String accountNumber = null;
-        while (accountNumber == null) {
-            System.out.print("Enter Account Number    : ");
-            accountNumber = scanner.nextLine();
-            accountNumber = InputValidationHelper.validateAccount(accountNumber, "NUMBER");
-        }
-
-        String accountPIN = null;
-        while (accountPIN == null) {
-            System.out.print("Enter PIN   : ");
-            accountPIN = scanner.nextLine();
-            accountPIN = InputValidationHelper.validateAccount(accountPIN, "PIN");
-        }
-
+    public Customer login(String accountNumber, String accountPIN) {
         Customer customer = customerService.setCurrentCustomer(accountNumber, accountPIN);
 
         if (customer != null) {
             System.out.println("Login successful");
+            return customer;
         } else {
             System.out.println("Invalid Account Number/PIN");
-            return null;
         }
 
-        return customer;
+        return null;
     }
 
     public boolean withdraw(Integer withdrawAmount, Customer customer) {

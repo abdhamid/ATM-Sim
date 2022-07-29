@@ -8,7 +8,6 @@ public class ScannerHelper {
     static final int MIN_TRANSFER = 1;
 
     public static String customerScanner(Scanner scanner, String menu) {
-
         String destAccountNum = null;
         while (destAccountNum == null) {
             System.out.println(menu);
@@ -16,6 +15,16 @@ public class ScannerHelper {
             destAccountNum = InputValidationHelper.validateAccount(destAccountNum, "NUMBER");
         }
         return destAccountNum;
+    }
+
+    public static String pinScanner(Scanner scanner, String menu) {
+        String pin = null;
+        while (pin == null) {
+            System.out.println(menu);
+            pin = scanner.nextLine();
+            pin = InputValidationHelper.validateAccount(pin, "PIN");
+        }
+        return pin;
     }
 
     public static Integer amountScanner(Scanner scanner, String menu) {
