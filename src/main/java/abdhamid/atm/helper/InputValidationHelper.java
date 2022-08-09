@@ -16,20 +16,19 @@ public class InputValidationHelper {
 
     public static String validateTransferAmount(String amount, int min, int max) {
         if (!amount.matches("\\d+")) {
-            System.out.println("Invalid amount");
+            return "Invalid amount";
         }
         else if (Integer.parseInt(amount)%10 != 0) {
-            System.out.println("Amount must be in a multiple of 10");
+            return "Amount must be in a multiple of 10";
         }
         else if (Integer.parseInt(amount) > max) {
-            System.out.println("Maximum amount to transfer is $1000");
+            return "Maximum amount to transfer is $1000";
         }
         else if (Integer.parseInt(amount) < min) {
-            System.out.println("Minimum amount to transfer is $1");
+            return "Minimum amount to transfer is $1";
         }
         else return amount;
 
-        return null;
     }
 
     public static String validateAccount(String input, String type) {
@@ -49,6 +48,26 @@ public class InputValidationHelper {
         }
         else return input;
         return null;
+    }
+
+    public static String validateAccountNumber(String input) {
+        if (input.length() != 6) {
+                return "Account Number should have 6 digits length";
+        }
+        else if (input.matches("[a-zA-Z]+")) {
+                return "Account Number should only contains numbers";
+        }
+        return "success";
+    }
+
+    public static String validateAccountPIN(String input) {
+        if (input.length() != 6) {
+            return "PIN should have 6 digits length";
+        }
+        else if (input.matches("[a-zA-Z]+")) {
+            return "PIN should only contains numbers";
+        }
+        return "success";
     }
 
 }

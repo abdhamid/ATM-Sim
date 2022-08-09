@@ -1,175 +1,236 @@
 package abdhamid.atm.controller;
 
-import abdhamid.atm.helper.InputValidationHelper;
-import abdhamid.atm.model.Customer;
-import abdhamid.atm.service.TransactionService;
+import abdhamid.atm.dto.AmountDto;
+import abdhamid.atm.dto.LoginDto;
+import abdhamid.atm.dto.TransferDto;
+import abdhamid.atm.model.Transaction;
+import abdhamid.atm.service.AuthService;
 import abdhamid.atm.service.CustomerService;
+import abdhamid.atm.service.TransactionService;
+import lombok.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
-import java.time.LocalDateTime;
+import javax.security.auth.login.LoginException;
+import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+
 import java.time.format.DateTimeFormatter;
-import java.util.Scanner;
+import java.util.List;
 
-import static abdhamid.atm.helper.RefIdHelper.generateRefId;
-import static abdhamid.atm.helper.ScannerHelper.*;
+import static abdhamid.atm.helper.InputValidationHelper.validateTransferAmount;
+import static abdhamid.atm.service.AuthService.currentCustomer;
 
+@Controller
+@RequestMapping("/")
 public class ApplicationController {
     private final CustomerService customerService;
     private final TransactionService transactionService;
+    private final AuthService authService;
 
-    public ApplicationController() {
-        this.customerService = new CustomerService();
-        this.transactionService = new TransactionService(customerService);
+
+    public ApplicationController(CustomerService customerService,
+                                 TransactionService transactionService,
+                                 AuthService authService) {
+        this.customerService = customerService;
+        this.transactionService = transactionService;
+        this.authService = authService;
     }
 
-    public void welcomeScreen(Scanner scanner) {
-        String loginAccMenu = "Enter Account Number    : ";
-        String accountNumber = customerScanner(scanner, loginAccMenu);
-
-        String loginPinMenu = "Enter PIN   : ";
-        String accountPIN = pinScanner(scanner, loginPinMenu);
-
-        Customer customer = transactionService.login(accountNumber, accountPIN);
-        if (customer!= null) {
-            transactionScreen(scanner, customer);
-        } else welcomeScreen(scanner);
+    @GetMapping("login")
+    public String login(Model model) {
+        model.addAttribute("login", new LoginDto());
+        return "login";
     }
 
-    public void transactionScreen(Scanner scanner, Customer customer) {
-        String transactionMenu = """
+    @PostMapping("login")
+    public Object loginPost(@Valid @ModelAttribute("login") LoginDto loginDto,
+                            RedirectAttributes redirectAttributes) {
+        String msg;
+        try {
+            authService.login(loginDto);
+            return new RedirectView("");
+        } catch (LoginException e) {
+            msg = e.getMessage();
+        }
 
-                    1. Withdraw
-                    2. Fund Transfer
-                    3. Transaction History
-                    4. Exit
-                    Please choose option[3]:\040""";
+        redirectAttributes.addFlashAttribute("errorStatus", true);
+        redirectAttributes.addFlashAttribute("errorMessage", msg);
+        return new RedirectView("/login");
+    }
 
-        int option = optionScanner(scanner, 1, 4, transactionMenu);
-
-        switch (option) {
-            case 1 -> withdrawScreen(scanner, customer);
-            case 2 -> fundTransferScreen(scanner, customer);
-            case 3 -> transactionHistoryScreen(scanner, customer);
-            default -> welcomeScreen(scanner);
+    @GetMapping
+    public Object homePage(Model model, HttpSession httpSession) {
+        if (AuthService.isAuthenticated) {
+            httpSession.setAttribute("customerName", currentCustomer.getAccountNumber());
+            httpSession.setAttribute("customerBalance", currentCustomer.getBalance());
+            return "index";
+        } else {
+            return new RedirectView("/login");
         }
     }
 
-    public void withdrawScreen(Scanner scanner, Customer customer) {
-        String withdrawMenu = """
-                                            
-                    1. $10
-                    2. $50
-                    3. $100
-                    4. Other
-                    5. Back
-                    Please choose option[5]:\040""";
-        int withdrawOption = optionScanner(scanner, 1, 5, withdrawMenu);
-
-        switch (withdrawOption) {
-            case 1 -> {
-                if (transactionService.withdraw(10, customer)) {
-                    summaryScreen(scanner, customer, 10);
-                } else transactionScreen(scanner, customer);
-            }
-            case 2 -> {
-                if (transactionService.withdraw(50, customer)) {
-                    summaryScreen(scanner, customer, 50);
-                } else transactionScreen(scanner, customer);
-            }
-            case 3 -> {
-                if (transactionService.withdraw(100, customer)) {
-                    summaryScreen(scanner, customer, 100);
-                } else transactionScreen(scanner, customer);
-            }
-            case 4 -> otherWithdrawScreen(scanner, customer);
-            default -> transactionScreen(scanner, customer);
-
-        }
+    @GetMapping("withdraw")
+    public String withdraw(Model model) {
+        model.addAttribute("amount", new AmountDto());
+        return "withdraw";
     }
 
-    public void otherWithdrawScreen(Scanner scanner, Customer customer) {
-        String withdrawAmountMenu = """
-
-                      Other Withdraw
-                      Enter amount to withdraw:\s""";
-        int withdrawAmount = amountScanner(scanner, withdrawAmountMenu);
-
-        if (transactionService.withdraw(withdrawAmount, customer)) {
-            summaryScreen(scanner, customer, withdrawAmount);
-        } else transactionScreen(scanner, customer);
-    }
-
-    public void summaryScreen(Scanner scanner, Customer customer, int withdrawAmount) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
-        System.out.println("\nSummary\n" +
-                "Date : " + LocalDateTime.now().format(dtf) + "\n" +
-                "Withdraw : " + withdrawAmount + "\n" +
-                "Balance : " + customer.getBalance());
-
-        String summaryMenu = """
-                                    
-                    1. Transaction\s
-                    2. Exit
-                    Choose option[2]:""";
-        int summaryOption = optionScanner(scanner, 1, 2, summaryMenu);
-
-        switch (summaryOption) {
-            case 1 -> transactionScreen(scanner, customer);
-            case 2 -> welcomeScreen(scanner);
+    @PostMapping("withdraw")
+    public Object withdraw(@Valid @ModelAttribute("amount") AmountDto amountDto,
+                           HttpSession httpSession,
+                           RedirectAttributes redirectAttributes) {
+        int amount = Integer.parseInt(validateTransferAmount(String.valueOf(amountDto.getAmount()), 1, 1000));
+        Transaction withdraw = new Transaction();
+        String msg = "";
+        boolean valid = false;
+        try {
+            withdraw = transactionService.withdraw(amount);
+            valid = true;
+        } catch (Exception e) {
+            msg = e.getMessage();
         }
+
+
+
+        final RedirectView withdrawView;
+        if (valid) {
+            DateTimeFormatter format = DateTimeFormatter.ofPattern("E, dd-MMM-yyyy HH:mm a");
+
+            withdrawView = new RedirectView("/withdraw/summary", true);
+            redirectAttributes.addFlashAttribute("amount", withdraw.getAmount());
+            redirectAttributes.addFlashAttribute("date", withdraw.getTimestamp().format(format));
+            httpSession.setAttribute("customerBalance", currentCustomer.getBalance());
+        } else {
+            withdrawView = new RedirectView("/withdraw-other", true);
+            redirectAttributes.addFlashAttribute("errorStatus", true);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
+        }
+        return withdrawView;
 
     }
 
-    public void fundTransferScreen(Scanner scanner, Customer customer) {
-        Customer destCustomer;
-        String fundTransferCustomerMenu = """
-                          
-                          Please enter destination account and\s
-                          press enter to continue :\s""";
-        while (true) {
-            String destAccountNum = customerScanner(scanner, fundTransferCustomerMenu);
-            destCustomer = customerService.getDestinationAccount(customer, destAccountNum);
-
-            if (destCustomer == null) {
-                System.out.println("Invalid account");
-            } else break;
-        }
-        String fundTransferAmountMenu = "\nPlease enter transfer amount and press enter to continue : ";
-        int transferAmount = amountScanner(scanner, fundTransferAmountMenu);
-
-        int refNumber = generateRefId();
-
-        String fundTransferConfirmationMenu = "\nTransfer Confirmation\n" +
-                "Destination Account : " + destCustomer.getAccountNumber() + " \n" +
-                "Transfer Amount     : $" + transferAmount + "\n" +
-                "Reference Number    : " + String.format("%06d", refNumber) + "\n" +
-                "\n" +
-                "1. Confirm Trx\n" +
-                "2. Cancel Trx\n" +
-                "Choose option[2]: ";
-        int transferOption = optionScanner(scanner, 1, 3, fundTransferConfirmationMenu);
-
-        switch (transferOption) {
-            case 1 -> {
-                if(transactionService.transfer(customer, destCustomer, transferAmount, refNumber)) {
-                    String transferSummaryMenu = """
-                                1. Transaction
-                                2. Exit
-                                Choose option[2]:\s""";
-                    int transferSummaryOption = optionScanner(scanner, 1, 2, transferSummaryMenu);
-
-                    switch (transferSummaryOption) {
-                        case 1 -> transactionScreen(scanner, customer);
-                        default -> welcomeScreen(scanner);
-                    }
-                } else transactionScreen(scanner, customer);
-            }
-            default -> fundTransferScreen(scanner, customer);
-        }
+    @GetMapping("withdraw-other")
+    public String withdrawOther(Model model) {
+        model.addAttribute("amount", new AmountDto());
+        return "withdraw-other";
     }
 
-    private void transactionHistoryScreen(Scanner scanner, Customer customer) {
-        transactionService.transactionHistory(customer);
-        transactionScreen(scanner, customer);
+    @PostMapping("withdraw-other")
+    public Object withdrawOther(@Valid @ModelAttribute("amount") AmountDto amountDto,
+                                HttpSession httpSession,
+                                RedirectAttributes redirectAttributes) {
+        Transaction withdraw = new Transaction();
+        String msg = "";
+
+        boolean valid = false;
+
+        try {
+            withdraw = transactionService.withdraw(amountDto.getAmount());
+            valid = true;
+        } catch (Exception e) {
+            msg = e.getMessage();
+        }
+        
+        final RedirectView withdrawView;
+        if (valid) {
+            DateTimeFormatter format = DateTimeFormatter.ofPattern("E, dd-MMM-yyyy HH:mm a");
+
+            withdrawView = new RedirectView("/withdraw/summary", true);
+            redirectAttributes.addFlashAttribute("amount", withdraw.getAmount());
+            redirectAttributes.addFlashAttribute("date", withdraw.getTimestamp().format(format));
+            httpSession.setAttribute("customerBalance", currentCustomer.getBalance());
+        } else {
+            withdrawView = new RedirectView("/withdraw", true);
+            redirectAttributes.addFlashAttribute("errorStatus", true);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
+        }
+        return withdrawView;
+
+    }
+
+    @GetMapping("withdraw/summary")
+    public Object withdrawSummary(){
+        if (AuthService.isAuthenticated) {
+            return "withdraw-summary";
+        }
+        return new RedirectView("/login", true);
+    }
+
+    @GetMapping("transfer")
+    public String transfer(Model model) {
+        model.addAttribute("transfer", new TransferDto());
+        return "transfer";
+    }
+
+    @PostMapping("transfer")
+    public Object transfer(@Valid @ModelAttribute TransferDto transferDto,
+                           RedirectAttributes redirectAttributes,
+                           HttpSession httpSession) {
+
+        Transaction transfer = new Transaction();
+        String msg = "";
+
+        boolean valid = false;
+
+        try {
+            transfer = transactionService.transfer(transferDto);
+            valid = true;
+        } catch (Exception e) {
+            msg = e.getMessage();
+        }
+
+        final RedirectView withdrawView;
+        if (valid) {
+            DateTimeFormatter format = DateTimeFormatter.ofPattern("E, dd-MMM-yyyy HH:mm a");
+
+            withdrawView = new RedirectView("/transfer/summary", true);
+            redirectAttributes.addFlashAttribute("date", transfer.getTimestamp().format(format));
+            redirectAttributes.addFlashAttribute("refId", transfer.getId());
+            redirectAttributes.addFlashAttribute("receiver", transferDto.getAccNumber());
+            redirectAttributes.addFlashAttribute("amount", transfer.getAmount());
+            redirectAttributes.addFlashAttribute("customerBalance", currentCustomer.getBalance());
+        } else {
+            withdrawView = new RedirectView("/transfer", true);
+            redirectAttributes.addFlashAttribute("errorStatus", true);
+            redirectAttributes.addFlashAttribute("errorMessage", msg);
+        }
+        return withdrawView;
+    }
+
+
+    @GetMapping("transfer/summary")
+    public Object transferSummary(){
+        if (AuthService.isAuthenticated) {
+            return "transfer-summary";
+        }
+        return new RedirectView("/login", true);
+    }
+
+
+
+    @GetMapping("logout")
+    public Object logout() {
+        AuthService.logout();
+        return new RedirectView("/login");
+    }
+
+    @GetMapping("transaction-history")
+    public String transactionHistory(Model model) {
+        if (AuthService.isAuthenticated){
+            List<Transaction> transactionHistory = transactionService.transactionHistory();
+            model.addAttribute("No", transactionHistory.size());
+            model.addAttribute("history", transactionHistory);
+            return "transaction-history";
+        } else {
+            return "login";
+        }
     }
 
 }

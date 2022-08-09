@@ -19,13 +19,16 @@
 <div>
     <h2 class="mb-4">ATM Simulation</h2>
     <h5 class="mb-3">Home</h5>
-    <p class="text-danger">${message}</p>
-    <p>${welcomeMessage}</p>
+
+    <h4>Customer name : &nbsp;${customerName}</h4>
+    <h4>Balance : &nbsp;${customerBalance}</h4>
+<%--    <p class="text-danger">${message}</p>--%>
+<%--    <p>${welcomeMessage}</p>--%>
 
     <div class="d-grid gap-2">
         <a class="btn btn-light mb-2" href="/withdraw">Withdraw</a>
         <a class="btn btn-light mb-2" href="/transfer">Transfer</a>
-        <a class="btn btn-light mb-2" href="/history">Transaction History</a>
+        <a class="btn btn-light mb-2" href="/transaction-history">Transaction History</a>
 
         <a class="btn btn-primary mt-2" href="/logout">Logout</a>
     </div>
