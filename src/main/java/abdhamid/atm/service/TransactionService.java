@@ -44,9 +44,10 @@ public class TransactionService {
     }
     //transfer
     @Transactional
-    public Transaction transfer(TransferDto transferDto) throws Exception {
-        Customer receiver = customerService.findByAccountNumber(transferDto.getAccNumber()).orElseThrow(EntityNotFoundException::new);
-        if (InputValidationHelper.validateTransferAmount(String.valueOf(transferDto.getAmount()), 1, 1000).length() > 10) {
+    public Transaction transfer(TransferDto transferDto) {
+        Customer receiver = customerService.findByAccountNumber(transferDto.getAccNumber()).orElseThrow(() -> new EntityNotFoundException("Invalid account"));
+
+        if (!InputValidationHelper.validateTransferAmount(String.valueOf(transferDto.getAmount()), 1, 1000).equals(String.valueOf(transferDto.getAmount()))) {
             throw new InputMismatchException(InputValidationHelper.validateTransferAmount(String.valueOf(transferDto.getAmount()), 1, 1000));
         }
         if (transferDto.getAmount() > currentCustomer.getBalance()){
