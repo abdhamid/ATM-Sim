@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Transfer Summary</title>
+</head>
+<body>
+<div>
+    <h1>Transfer Summary</h1>
+    <ul>
+        <li>
+            <label>Date :&nbsp;</label>
+            <p th:text="${date}"/>
+        </li>
+        <li>
+            <label>Reference ID :&nbsp;</label>
+            <p th:text="${refId}"/>
+        </li>
+        <li>
+            <label>Receiver :&nbsp;</label>
+            <p th:text="${receiver}"/>
+        </li>
+        <li>
+            <label>Transfer Amount :&nbsp;</label>
+            <p th:text="${amount}"/>
+        </li>
+        <li>
+            <label>Remaining Balance :&nbsp;</label>
+            <p th:text="${customerBalance}"/>
+        </li>
+    </ul>
+
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+</div>
+
+</body>
+</html>

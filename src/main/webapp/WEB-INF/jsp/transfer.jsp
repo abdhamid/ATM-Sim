@@ -21,7 +21,7 @@
     <form:form action="/transfer" modelAttribute="transfer" method="post">
         <div class="form-floating mb-2">
             <form:label path="accNumber">Receiver Account Number</form:label>
-            <form:input path="accNumber" class="form-control"/>
+            <form:input path="destinationAccount" class="form-control"/>
         </div>
         <div class="form-floating">
             <form:label path="amount">Transfer Amount</form:label>

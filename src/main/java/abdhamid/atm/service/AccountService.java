@@ -2,18 +2,17 @@ package abdhamid.atm.service;
 
 import abdhamid.atm.model.Customer;
 import abdhamid.atm.repository.CustomerRepository;
-import com.fasterxml.jackson.annotation.OptBoolean;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CustomerService {
+public class AccountService {
     private final CustomerRepository customerRepository;
 
-    public CustomerService(CustomerRepository customerRepository) {
+    public AccountService(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
 
@@ -27,5 +26,9 @@ public class CustomerService {
 
     public Optional<Customer> findByAccountNumber(String accNumber) {
         return customerRepository.findCustomerByAccountNumber(accNumber);
+    }
+
+    public Customer getByAccountNumber(String destinationAccount) {
+        return customerRepository.findCustomerByAccountNumber(destinationAccount).orElseThrow(() -> new EntityNotFoundException("Invalid account"));
     }
 }

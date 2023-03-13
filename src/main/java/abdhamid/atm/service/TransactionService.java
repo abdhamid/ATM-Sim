@@ -8,9 +8,7 @@ import abdhamid.atm.repository.TransactionRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.InputMismatchException;
 import java.util.List;
 
@@ -19,52 +17,55 @@ import static abdhamid.atm.service.AuthService.currentCustomer;
 @Service
 public class TransactionService {
     private final TransactionRepository transactionRepository;
-    private final CustomerService customerService;
+    private final AccountService accountService;
 
-    public TransactionService(TransactionRepository transactionRepository, CustomerService customerService) {
+    public TransactionService(TransactionRepository transactionRepository, AccountService accountService) {
         this.transactionRepository = transactionRepository;
-        this.customerService = customerService;
+        this.accountService = accountService;
     }
 
     //withdraw
     @Transactional
     public Transaction withdraw(int withdrawAmount) throws Exception {
-        if (InputValidationHelper.validateTransferAmount(String.valueOf(withdrawAmount), 1, 1000).length() > 10) {
-            throw new InputMismatchException(InputValidationHelper.validateTransferAmount(String.valueOf(withdrawAmount), 1, 1000));
-        }
-        
-        else if (withdrawAmount > currentCustomer.getBalance()){
-            throw new InputMismatchException("Insufficient balance $" + currentCustomer.getBalance());
-        }
+        validateWithdrawAmount(withdrawAmount);
 
         currentCustomer.setBalance(currentCustomer.getBalance() - withdrawAmount);
-        customerService.save(currentCustomer);
+        accountService.save(currentCustomer);
         Transaction withdraw = new Transaction("DEBIT", currentCustomer.getAccountNumber(), (double) withdrawAmount);
         return transactionRepository.save(withdraw);
     }
+
+    private void validateWithdrawAmount(int withdrawAmount) {
+        boolean isValidWithdrawAmount = InputValidationHelper.validateTransferAmount(String.valueOf(withdrawAmount), 1, 1000).length() > 10;
+        if (isValidWithdrawAmount) {
+            throw new InputMismatchException(InputValidationHelper.validateTransferAmount(String.valueOf(withdrawAmount), 1, 1000));
+        }
+
+        if (withdrawAmount > currentCustomer.getBalance()){
+            throw new InputMismatchException("Insufficient balance $" + currentCustomer.getBalance());
+        }
+    }
+
     //transfer
     @Transactional
     public Transaction transfer(TransferDto transferDto) {
-        Customer receiver = customerService.findByAccountNumber(transferDto.getAccNumber()).orElseThrow(() -> new EntityNotFoundException("Invalid account"));
+        Customer receiver = accountService.getByAccountNumber(transferDto.getDestinationAccount());
 
-        if (!InputValidationHelper.validateTransferAmount(String.valueOf(transferDto.getAmount()), 1, 1000).equals(String.valueOf(transferDto.getAmount()))) {
-            throw new InputMismatchException(InputValidationHelper.validateTransferAmount(String.valueOf(transferDto.getAmount()), 1, 1000));
-        }
-        if (transferDto.getAmount() > currentCustomer.getBalance()){
-            throw new InputMismatchException("Insufficient balance $" + currentCustomer.getBalance());
-        }
+        validateWithdrawAmount(transferDto.getAmount());
+
         currentCustomer.setBalance(currentCustomer.getBalance() - transferDto.getAmount());
-        customerService.save(currentCustomer);
+        accountService.save(currentCustomer);
         Transaction transfer = new Transaction("DEBIT", currentCustomer.getAccountNumber(), (double) transferDto.getAmount());
         transactionRepository.save(transfer);
 
         receiver.setBalance(receiver.getBalance() + transferDto.getAmount());
-        customerService.save(receiver);
+        accountService.save(receiver);
         Transaction receive = new Transaction("CREDIT", receiver.getAccountNumber(), (double) transferDto.getAmount());
         transactionRepository.save(receive);
 
         return transfer;
     }
+
     //get 10 last transaction
     public List<Transaction> transactionHistory() {
         return transactionRepository.findByAccNumberDesc(currentCustomer.getAccountNumber(), PageRequest.of(0, 10))

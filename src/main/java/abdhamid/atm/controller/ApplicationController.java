@@ -1,11 +1,7 @@
 package abdhamid.atm.controller;
 
-import abdhamid.atm.dto.AmountDto;
 import abdhamid.atm.dto.LoginDto;
-import abdhamid.atm.dto.TransferDto;
-import abdhamid.atm.model.Transaction;
 import abdhamid.atm.service.AuthService;
-import abdhamid.atm.service.CustomerService;
 import abdhamid.atm.service.TransactionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,10 +16,6 @@ import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import static abdhamid.atm.helper.InputValidationHelper.validateTransferAmount;
 import static abdhamid.atm.service.AuthService.currentCustomer;
 
 @Controller
@@ -46,7 +38,7 @@ public class ApplicationController {
     }
 
     @PostMapping("login")
-    public Object loginPost(@Valid @ModelAttribute("login") LoginDto loginDto,
+    public Object loginPost(@Valid @ModelAttribute LoginDto loginDto,
                             RedirectAttributes redirectAttributes) {
         String msg;
         try {
@@ -64,7 +56,7 @@ public class ApplicationController {
     @GetMapping
     public Object homePage(Model model, HttpSession httpSession) {
         if (AuthService.isAuthenticated) {
-            httpSession.setAttribute("customerName", currentCustomer.getAccountNumber());
+            httpSession.setAttribute("customerName", currentCustomer.getName());
             httpSession.setAttribute("customerBalance", currentCustomer.getBalance());
             return "index";
         } else {

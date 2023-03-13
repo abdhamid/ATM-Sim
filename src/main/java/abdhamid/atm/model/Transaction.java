@@ -11,7 +11,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
-import java.util.Random;
 
 @Entity(name = "transactions")
 @Getter
@@ -42,12 +41,6 @@ public class Transaction {
         this.transactionCreator = transactionCreator;
         this.amount = amount;
         this.timestamp = timestamp;
-    }
-
-
-    public static int generateRefId() {
-        Random rnd = new Random();
-        return rnd.nextInt(999999);
     }
 
 }

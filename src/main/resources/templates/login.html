@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ATM Simulation</title>
+</head>
+<body>
+
+<div class="container">
+    <div th:if="${errorStatus}">
+        <div th:text="${errorMessage}"/>
+    </div>
+
+    <form th:action="@{/login}" th:object="${login}" method="POST">
+        <input type="text" th:field="*{accNumber}" placeholder="Username" />
+        <input type="password" th:field="*{accPin}" placeholder="PIN">
+        <button type="submit">Sign in</button>
+    </form>
+</div>
+</body>
+</html>
+

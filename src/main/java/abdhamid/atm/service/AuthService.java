@@ -9,13 +9,13 @@ import javax.security.auth.login.LoginException;
 
 @Service
 public class AuthService {
-    private final CustomerService customerService;
+    private final AccountService accountService;
     public static boolean isAuthenticated = false;
 
     public static Customer currentCustomer = null;
 
-    public AuthService(CustomerService customerService) {
-        this.customerService = customerService;
+    public AuthService(AccountService accountService) {
+        this.accountService = accountService;
     }
 
     public Customer login(LoginDto loginDto) throws LoginException {
@@ -24,7 +24,7 @@ public class AuthService {
         } else if (!InputValidationHelper.validateAccountPIN(loginDto.getAccPin()).equals("success")) {
             throw new LoginException(InputValidationHelper.validateAccountPIN(loginDto.getAccPin()));
         }
-        Customer customer = customerService.findByAccountNumber(loginDto.getAccNumber()).orElseThrow(() -> new LoginException("Invalid Account Number/PIN"));
+        Customer customer = accountService.findByAccountNumber(loginDto.getAccNumber()).orElseThrow(() -> new LoginException("Invalid Account Number/PIN"));
         if (customer.getPin().equals(loginDto.getAccPin())) {
             AuthService.isAuthenticated = true;
             currentCustomer = customer;

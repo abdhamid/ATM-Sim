@@ -148,9 +148,10 @@ public class TransactionController {
             withdrawView = new RedirectView("/transfer/summary", true);
             redirectAttributes.addFlashAttribute("date", transfer.getTimestamp().format(format));
             redirectAttributes.addFlashAttribute("refId", transfer.getId());
-            redirectAttributes.addFlashAttribute("receiver", transferDto.getAccNumber());
+            redirectAttributes.addFlashAttribute("receiver", transferDto.getDestinationAccount());
             redirectAttributes.addFlashAttribute("amount", transfer.getAmount());
-            redirectAttributes.addFlashAttribute("customerBalance", currentCustomer.getBalance());
+            System.out.println(currentCustomer);
+            redirectAttributes.addFlashAttribute("customerBalance", currentCustomer.getBalance().toString());
         } else {
             withdrawView = new RedirectView("/transfer", true);
             redirectAttributes.addFlashAttribute("errorStatus", true);

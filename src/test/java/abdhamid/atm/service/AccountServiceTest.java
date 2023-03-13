@@ -15,11 +15,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ContextConfiguration(classes = {CustomerService.class})
+@ContextConfiguration(classes = {AccountService.class})
 @ExtendWith(SpringExtension.class)
-class CustomerServiceTest {
+class AccountServiceTest {
     @Autowired
-    private CustomerService customerService;
+    private AccountService accountService;
 
     @MockBean
     private CustomerRepository customerRepository;
@@ -29,9 +29,9 @@ class CustomerServiceTest {
     void testFindAll() {
         // Arrange and Act
         List<Customer> res = List.of(new Customer("Bob", "112233", 100. , "112233"));
-        Mockito.when(customerService.findAll()).thenReturn(res);
+        Mockito.when(accountService.findAll()).thenReturn(res);
 
-        List<Customer> actualFindAllResult = this.customerService.findAll();
+        List<Customer> actualFindAllResult = this.accountService.findAll();
 
         // Assert
         assertEquals(res, actualFindAllResult);
@@ -44,8 +44,8 @@ class CustomerServiceTest {
         Customer customer = new Customer("Bob", "112233", 100. , "112233");
 
         // Act
-        Mockito.when(customerService.save(customer)).thenReturn(customer);
-        Customer actualSaveResult = this.customerService.save(customer);
+        Mockito.when(accountService.save(customer)).thenReturn(customer);
+        Customer actualSaveResult = this.accountService.save(customer);
 
         // Assert
         assertEquals(customer, actualSaveResult);
@@ -56,10 +56,10 @@ class CustomerServiceTest {
         // Arrange
         Optional<Customer> customer = Optional.of(new Customer("Bob", "112233", 100., "112233"));
 
-        Mockito.when(customerService.findByAccountNumber("112233")).thenReturn(customer);
+        Mockito.when(accountService.findByAccountNumber("112233")).thenReturn(customer);
 
         // Act
-        Optional<Customer> actualFindByAccountNumberResult = this.customerService.findByAccountNumber("112233");
+        Optional<Customer> actualFindByAccountNumberResult = this.accountService.findByAccountNumber("112233");
 
         // Assert
         assertEquals(customer, actualFindByAccountNumberResult);

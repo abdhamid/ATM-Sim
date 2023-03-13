@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Withdraw</title>
+</head>
+<body>
+<div>
+    <h1>Withdraw</h1>
+    <div th:if="${errorStatus}">
+        <div th:text="${errorMessage}"/>
+    </div>
+
+    <form th:action="@{/withdraw}" th:object="${amount}" method="post">
+        <div>
+            <input type="radio" th:field="*{amount}" th:value="10"/>
+            <label>10</label>
+        </div>
+        <div>
+            <input type="radio" th:field="*{amount}" th:value="50"/>
+            <label>50</label>
+        </div>
+        <div>
+            <input type="radio" th:field="*{amount}" th:value="100"/>
+            <label>100</label>
+        </div>
+        <button type="submit">Withdraw</button>
+    </form>
+    <form action="/withdraw-other">
+        <input type="submit" value="Withdraw other amount"/>
+    </form>
+
+</div>
+
+</body>
+</html>

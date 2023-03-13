@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Withdraw - Other</title>
+</head>
+<body>
+<form th:action="@{/withdraw-other}" th:object="${amount}" method="post">
+    <div th:if="${errorStatus}">
+        <div th:text="${errorMessage}"/>
+    </div>
+    <div>
+        <label>Enter amount to withdraw:</label>
+        <input type="number" th:field="*{amount}">
+    </div>
+    <button type="submit">Withdraw</button>
+</form>
+</body>
+</html>

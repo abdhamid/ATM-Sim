@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Transaction History</title>
+</head>
+<body>
+<div>
+  <h1>Transaction History</h1>
+  <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">ID</th>
+      <th scope="col">Transaction Type</th>
+      <th scope="col">Account Number</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Date</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="transaction,iter : ${history}">
+      <td th:text="${iter.index+1}"></td>
+      <td th:text="${transaction.id}"></td>
+      <td th:text="${transaction.transactionType}"></td>
+      <td th:text="${transaction.transactionCreator}"></td>
+      <td th:text="${transaction.amount}"></td>
+      <td th:text="${transaction.timestamp}"></td>
+    </tr>
+    </tbody>
+  </table>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/logout">Logout</a></li>
+  </ul>
+</div>
+
+</body>
+</html>

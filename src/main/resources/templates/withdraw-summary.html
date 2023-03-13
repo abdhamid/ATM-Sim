@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Withdraw Summary</title>
+</head>
+<body>
+<div>
+    <h1>Withdraw Summary</h1>
+    <ul>
+        <li>
+            <label>Date :&nbsp;</label>
+            <p th:text="${date}"/>
+        </li>
+        <li>
+            <label>Withdraw Amount :&nbsp;</label>
+            <p th:text="${amount}"/>
+        </li>
+        <li>
+            <label>Remaining Balance :&nbsp;</label>
+            <p th:text="${customerBalance}"/>
+        </li>
+    </ul>
+
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+</div>
+
+</body>
+</html>

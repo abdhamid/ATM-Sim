@@ -10,6 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransferDto {
-    private String accNumber;
+    private String destinationAccount;
     private Integer amount;
 }
