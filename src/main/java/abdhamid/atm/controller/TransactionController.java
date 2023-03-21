@@ -5,12 +5,16 @@ import abdhamid.atm.dto.TransferDto;
 import abdhamid.atm.model.Transaction;
 import abdhamid.atm.service.AuthService;
 import abdhamid.atm.service.TransactionService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -18,9 +22,12 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static abdhamid.atm.helper.InputValidationHelper.validateTransferAmount;
-import static abdhamid.atm.service.AuthService.currentCustomer;
+import static abdhamid.atm.service.AuthService.currentAccount;
 
 @Controller
 @RequestMapping("/")
@@ -53,7 +60,6 @@ public class TransactionController {
         }
 
 
-
         final RedirectView withdrawView;
         if (valid) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern("E, dd-MMM-yyyy HH:mm a");
@@ -61,7 +67,7 @@ public class TransactionController {
             withdrawView = new RedirectView("/withdraw/summary", true);
             redirectAttributes.addFlashAttribute("amount", withdraw.getAmount());
             redirectAttributes.addFlashAttribute("date", withdraw.getTimestamp().format(format));
-            httpSession.setAttribute("customerBalance", currentCustomer.getBalance());
+            httpSession.setAttribute("customerBalance", currentAccount.getBalance());
         } else {
             withdrawView = new RedirectView("/withdraw-other", true);
             redirectAttributes.addFlashAttribute("errorStatus", true);
@@ -100,7 +106,7 @@ public class TransactionController {
             withdrawView = new RedirectView("/withdraw/summary", true);
             redirectAttributes.addFlashAttribute("amount", withdraw.getAmount());
             redirectAttributes.addFlashAttribute("date", withdraw.getTimestamp().format(format));
-            httpSession.setAttribute("customerBalance", currentCustomer.getBalance());
+            httpSession.setAttribute("customerBalance", currentAccount.getBalance());
         } else {
             withdrawView = new RedirectView("/withdraw", true);
             redirectAttributes.addFlashAttribute("errorStatus", true);
@@ -111,11 +117,8 @@ public class TransactionController {
     }
 
     @GetMapping("withdraw/summary")
-    public Object withdrawSummary(){
-        if (AuthService.isAuthenticated) {
-            return "withdraw-summary";
-        }
-        return new RedirectView("/login", true);
+    public Object withdrawSummary() {
+        return "withdraw-summary";
     }
 
     @GetMapping("transfer")
@@ -150,8 +153,7 @@ public class TransactionController {
             redirectAttributes.addFlashAttribute("refId", transfer.getId());
             redirectAttributes.addFlashAttribute("receiver", transferDto.getDestinationAccount());
             redirectAttributes.addFlashAttribute("amount", transfer.getAmount());
-            System.out.println(currentCustomer);
-            redirectAttributes.addFlashAttribute("customerBalance", currentCustomer.getBalance().toString());
+            redirectAttributes.addFlashAttribute("customerBalance", currentAccount.getBalance().toString());
         } else {
             withdrawView = new RedirectView("/transfer", true);
             redirectAttributes.addFlashAttribute("errorStatus", true);
@@ -162,22 +164,25 @@ public class TransactionController {
 
 
     @GetMapping("transfer/summary")
-    public Object transferSummary(){
-        if (AuthService.isAuthenticated) {
-            return "transfer-summary";
-        }
-        return new RedirectView("/login", true);
+    public Object transferSummary() {
+        return "transfer-summary";
     }
 
     @GetMapping("transaction-history")
-    public String transactionHistory(Model model) {
-        if (AuthService.isAuthenticated){
-            List<Transaction> transactionHistory = transactionService.transactionHistory();
-            model.addAttribute("No", transactionHistory.size());
-            model.addAttribute("history", transactionHistory);
-            return "transaction-history";
-        } else {
-            return "login";
+    public String transactionHistory(Model model, @RequestParam Optional<Integer> page) {
+        int currentPage = page.orElse(1);
+        int pageSize = 5;
+        Pageable pageable = PageRequest.of(currentPage - 1, pageSize);
+        Page<Transaction> transactionHistory = transactionService.transactionHistory(currentAccount.getAccountNumber(), pageable);
+
+        model.addAttribute("transactionHistory", transactionHistory);
+        int totalPages = transactionHistory.getTotalPages();
+        if (totalPages > 0) {
+            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
+                    .boxed()
+                    .toList();
+            model.addAttribute("pageNumbers", pageNumbers);
         }
+        return "transaction-history";
     }
 }

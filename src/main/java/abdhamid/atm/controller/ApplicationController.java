@@ -6,17 +6,12 @@ import abdhamid.atm.service.TransactionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
 
-import static abdhamid.atm.service.AuthService.currentCustomer;
+import static abdhamid.atm.service.AuthService.currentAccount;
 
 @Controller
 @RequestMapping("/")
@@ -37,33 +32,13 @@ public class ApplicationController {
         return "login";
     }
 
-    @PostMapping("login")
-    public Object loginPost(@Valid @ModelAttribute LoginDto loginDto,
-                            RedirectAttributes redirectAttributes) {
-        String msg;
-        try {
-            authService.login(loginDto);
-            return new RedirectView("");
-        } catch (LoginException e) {
-            msg = e.getMessage();
-        }
-
-        redirectAttributes.addFlashAttribute("errorStatus", true);
-        redirectAttributes.addFlashAttribute("errorMessage", msg);
-        return new RedirectView("/login");
-    }
-
     @GetMapping
     public Object homePage(Model model, HttpSession httpSession) {
-        if (AuthService.isAuthenticated) {
-            httpSession.setAttribute("customerName", currentCustomer.getName());
-            httpSession.setAttribute("customerBalance", currentCustomer.getBalance());
-            return "index";
-        } else {
-            return new RedirectView("/login");
-        }
+        currentAccount = authService.getCurrentAccount();
+        httpSession.setAttribute("customerName", currentAccount.getName());
+        httpSession.setAttribute("customerBalance", currentAccount.getBalance());
+        return "index";
     }
-
 
 
     @GetMapping("logout")

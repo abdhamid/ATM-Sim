@@ -2,17 +2,17 @@ package abdhamid.atm.service;
 
 import abdhamid.atm.dto.TransferDto;
 import abdhamid.atm.helper.InputValidationHelper;
-import abdhamid.atm.model.Customer;
+import abdhamid.atm.model.Account;
 import abdhamid.atm.model.Transaction;
 import abdhamid.atm.repository.TransactionRepository;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.InputMismatchException;
-import java.util.List;
 
-import static abdhamid.atm.service.AuthService.currentCustomer;
+import static abdhamid.atm.service.AuthService.currentAccount;
 
 @Service
 public class TransactionService {
@@ -29,9 +29,9 @@ public class TransactionService {
     public Transaction withdraw(int withdrawAmount) throws Exception {
         validateWithdrawAmount(withdrawAmount);
 
-        currentCustomer.setBalance(currentCustomer.getBalance() - withdrawAmount);
-        accountService.save(currentCustomer);
-        Transaction withdraw = new Transaction("DEBIT", currentCustomer.getAccountNumber(), (double) withdrawAmount);
+        currentAccount.setBalance(currentAccount.getBalance() - withdrawAmount);
+        accountService.save(currentAccount);
+        Transaction withdraw = new Transaction("DEBIT", currentAccount.getAccountNumber(), (double) withdrawAmount);
         return transactionRepository.save(withdraw);
     }
 
@@ -41,21 +41,21 @@ public class TransactionService {
             throw new InputMismatchException(InputValidationHelper.validateTransferAmount(String.valueOf(withdrawAmount), 1, 1000));
         }
 
-        if (withdrawAmount > currentCustomer.getBalance()){
-            throw new InputMismatchException("Insufficient balance $" + currentCustomer.getBalance());
+        if (withdrawAmount > currentAccount.getBalance()){
+            throw new InputMismatchException("Insufficient balance $" + currentAccount.getBalance());
         }
     }
 
     //transfer
     @Transactional
     public Transaction transfer(TransferDto transferDto) {
-        Customer receiver = accountService.getByAccountNumber(transferDto.getDestinationAccount());
+        Account receiver = accountService.getByAccountNumber(transferDto.getDestinationAccount());
 
         validateWithdrawAmount(transferDto.getAmount());
 
-        currentCustomer.setBalance(currentCustomer.getBalance() - transferDto.getAmount());
-        accountService.save(currentCustomer);
-        Transaction transfer = new Transaction("DEBIT", currentCustomer.getAccountNumber(), (double) transferDto.getAmount());
+        currentAccount.setBalance(currentAccount.getBalance() - transferDto.getAmount());
+        accountService.save(currentAccount);
+        Transaction transfer = new Transaction("DEBIT", currentAccount.getAccountNumber(), (double) transferDto.getAmount());
         transactionRepository.save(transfer);
 
         receiver.setBalance(receiver.getBalance() + transferDto.getAmount());
@@ -67,9 +67,8 @@ public class TransactionService {
     }
 
     //get 10 last transaction
-    public List<Transaction> transactionHistory() {
-        return transactionRepository.findByAccNumberDesc(currentCustomer.getAccountNumber(), PageRequest.of(0, 10))
-                .stream().toList();
+    public Page<Transaction> transactionHistory(String accNumber, Pageable page) {
+        return transactionRepository.findByAccNumberDesc(accNumber, page);
     }
     //save to db
 }

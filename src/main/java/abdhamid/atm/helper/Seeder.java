@@ -1,7 +1,7 @@
 package abdhamid.atm.helper;
 
 import abdhamid.atm.dao.CustomerDao;
-import abdhamid.atm.model.Customer;
+import abdhamid.atm.model.Account;
 import abdhamid.atm.service.AccountService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -27,9 +27,9 @@ public class Seeder {
     }
 
     private void customerSeeder() {
-        List<Customer> customers = customerDao.readCustomerCSV(CUSTOMER_PATH);
-        for (Customer customer: customers) {
-            accountService.save(customer);
+        List<Account> accounts = customerDao.readCustomerCSV(CUSTOMER_PATH);
+        for (Account account : accounts) {
+            accountService.save(account);
         }
     }
 }

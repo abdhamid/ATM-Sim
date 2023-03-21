@@ -19,7 +19,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="transaction,iter : ${history}">
+    <tr th:each="transaction,iter : ${transactionHistory.content}">
       <td th:text="${iter.index+1}"></td>
       <td th:text="${transaction.id}"></td>
       <td th:text="${transaction.transactionType}"></td>
@@ -29,6 +29,14 @@
     </tr>
     </tbody>
   </table>
+
+  <div th:if="${transactionHistory.totalPages > 0}" class="pagination"
+       th:each="pageNumber : ${pageNumbers}">
+    <a th:href="@{/transaction-history(page=${pageNumber})}"
+       th:text="${pageNumber}"
+       th:class="${pageNumber==transactionHistory.number + 1} ? active"></a>
+
+  </div>
   <ul>
     <li><a href="/">Home</a></li>
     <li><a href="/logout">Logout</a></li>

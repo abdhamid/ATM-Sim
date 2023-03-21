@@ -1,12 +1,12 @@
 package abdhamid.atm.repository;
 
-import abdhamid.atm.model.Customer;
+import abdhamid.atm.model.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Long> {
-    Optional<Customer> findCustomerByAccountNumber(String accNumber);
+public interface AccountRepository extends JpaRepository<Account, Long> {
+    Optional<Account> findCustomerByAccountNumber(String accNumber);
 }

@@ -1,11 +1,11 @@
 package abdhamid.atm.service;
 
-import abdhamid.atm.model.Customer;
+import abdhamid.atm.model.Account;
 
 import java.util.List;
 import java.util.Optional;
 
-import abdhamid.atm.repository.CustomerRepository;
+import abdhamid.atm.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,16 +22,16 @@ class AccountServiceTest {
     private AccountService accountService;
 
     @MockBean
-    private CustomerRepository customerRepository;
+    private AccountRepository accountRepository;
 
 
     @Test
     void testFindAll() {
         // Arrange and Act
-        List<Customer> res = List.of(new Customer("Bob", "112233", 100. , "112233"));
+        List<Account> res = List.of(new Account("Bob", "112233", 100. , "112233"));
         Mockito.when(accountService.findAll()).thenReturn(res);
 
-        List<Customer> actualFindAllResult = this.accountService.findAll();
+        List<Account> actualFindAllResult = this.accountService.findAll();
 
         // Assert
         assertEquals(res, actualFindAllResult);
@@ -41,25 +41,25 @@ class AccountServiceTest {
     @Test
     void testSave() {
         // Arrange
-        Customer customer = new Customer("Bob", "112233", 100. , "112233");
+        Account account = new Account("Bob", "112233", 100. , "112233");
 
         // Act
-        Mockito.when(accountService.save(customer)).thenReturn(customer);
-        Customer actualSaveResult = this.accountService.save(customer);
+        Mockito.when(accountService.save(account)).thenReturn(account);
+        Account actualSaveResult = this.accountService.save(account);
 
         // Assert
-        assertEquals(customer, actualSaveResult);
+        assertEquals(account, actualSaveResult);
     }
 
     @Test
     void testFindByAccountNumber() {
         // Arrange
-        Optional<Customer> customer = Optional.of(new Customer("Bob", "112233", 100., "112233"));
+        Optional<Account> customer = Optional.of(new Account("Bob", "112233", 100., "112233"));
 
         Mockito.when(accountService.findByAccountNumber("112233")).thenReturn(customer);
 
         // Act
-        Optional<Customer> actualFindByAccountNumberResult = this.accountService.findByAccountNumber("112233");
+        Optional<Account> actualFindByAccountNumberResult = this.accountService.findByAccountNumber("112233");
 
         // Assert
         assertEquals(customer, actualFindByAccountNumberResult);

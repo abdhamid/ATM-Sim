@@ -1,6 +1,6 @@
 package abdhamid.atm.dao;
 
-import abdhamid.atm.model.Customer;
+import abdhamid.atm.model.Account;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -9,31 +9,31 @@ import java.util.stream.Stream;
 
 
 public class CustomerDao {
-    public List<Customer> readCustomerCSV(String path) {
-        List<Customer> customers = new ArrayList<>();
+    public List<Account> readCustomerCSV(String path) {
+        List<Account> accounts = new ArrayList<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
 
             Stream<String> lines = br.lines().skip(1);
             lines.forEachOrdered(line -> {
                 String[] data = line.split(",");
-                Customer cust = new Customer();
+                Account cust = new Account();
                 cust.setName(data[0]);
                 cust.setPin(data[1]);
                 cust.setBalance(Double.valueOf(data[2]));
                 cust.setAccountNumber(data[3]);
-                customers.add(cust);
+                accounts.add(cust);
             });
             br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return customers;
+        return accounts;
     }
 
-    public static void writeCSV(List<Customer> customers, String path) {
+    public static void writeCSV(List<Account> accounts, String path) {
         try {
-            List<String> toWrite = customers.stream()
+            List<String> toWrite = accounts.stream()
                     .map(customer -> {
                         return new String[]{
                                 customer.getName(),

@@ -1,7 +1,7 @@
 package abdhamid.atm.service;
 
-import abdhamid.atm.model.Customer;
-import abdhamid.atm.repository.CustomerRepository;
+import abdhamid.atm.model.Account;
+import abdhamid.atm.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -10,25 +10,25 @@ import java.util.Optional;
 
 @Service
 public class AccountService {
-    private final CustomerRepository customerRepository;
+    private final AccountRepository accountRepository;
 
-    public AccountService(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
+    public AccountService(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
     }
 
-    public List<Customer> findAll() {
-        return customerRepository.findAll();
+    public List<Account> findAll() {
+        return accountRepository.findAll();
     }
 
-    public Customer save(Customer customer) {
-        return customerRepository.save(customer);
+    public Account save(Account account) {
+        return accountRepository.save(account);
     }
 
-    public Optional<Customer> findByAccountNumber(String accNumber) {
-        return customerRepository.findCustomerByAccountNumber(accNumber);
+    public Optional<Account> findByAccountNumber(String accNumber) {
+        return accountRepository.findCustomerByAccountNumber(accNumber);
     }
 
-    public Customer getByAccountNumber(String destinationAccount) {
-        return customerRepository.findCustomerByAccountNumber(destinationAccount).orElseThrow(() -> new EntityNotFoundException("Invalid account"));
+    public Account getByAccountNumber(String destinationAccount) {
+        return accountRepository.findCustomerByAccountNumber(destinationAccount).orElseThrow(() -> new EntityNotFoundException("Invalid account"));
     }
 }
