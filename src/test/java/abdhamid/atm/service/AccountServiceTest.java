@@ -1,68 +1,93 @@
 package abdhamid.atm.service;
 
 import abdhamid.atm.model.Account;
+import abdhamid.atm.repository.AccountRepository;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
-import abdhamid.atm.repository.AccountRepository;
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@ContextConfiguration(classes = {AccountService.class})
-@ExtendWith(SpringExtension.class)
+
+@ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
-    @Autowired
-    private AccountService accountService;
-
-    @MockBean
+    @Mock
     private AccountRepository accountRepository;
 
+    @InjectMocks
+    private AccountService accountService;
 
     @Test
-    void testFindAll() {
-        // Arrange and Act
-        List<Account> res = List.of(new Account("Bob", "112233", 100. , "112233"));
-        Mockito.when(accountService.findAll()).thenReturn(res);
+    void findAll_shouldReturnListOfAccounts() {
+        Account account1 = new Account();
+        Account account2 = new Account();
+        List<Account> expected = List.of(account1, account2);
 
-        List<Account> actualFindAllResult = this.accountService.findAll();
+        when(accountRepository.findAll()).thenReturn(expected);
 
-        // Assert
-        assertEquals(res, actualFindAllResult);
-    }
+        List<Account> result = accountService.findAll();
 
-
-    @Test
-    void testSave() {
-        // Arrange
-        Account account = new Account("Bob", "112233", 100. , "112233");
-
-        // Act
-        Mockito.when(accountService.save(account)).thenReturn(account);
-        Account actualSaveResult = this.accountService.save(account);
-
-        // Assert
-        assertEquals(account, actualSaveResult);
+        assertEquals(expected, result);
     }
 
     @Test
-    void testFindByAccountNumber() {
-        // Arrange
-        Optional<Account> customer = Optional.of(new Account("Bob", "112233", 100., "112233"));
+    void save_willReturnSavedAccount() {
+        Account account = new Account();
+        when(accountRepository.save(account)).thenReturn(account);
 
-        Mockito.when(accountService.findByAccountNumber("112233")).thenReturn(customer);
+        Account savedAccount = accountService.save(account);
 
-        // Act
-        Optional<Account> actualFindByAccountNumberResult = this.accountService.findByAccountNumber("112233");
-
-        // Assert
-        assertEquals(customer, actualFindByAccountNumberResult);
+        assertEquals(account, savedAccount);
     }
+
+    @Test
+    void getByAccountNumber_willReturnAccount() {
+        Account expectedAccount = new Account("Ben Dover", "123456", 100.0d, "123456");
+        when(accountRepository.findCustomerByAccountNumber(expectedAccount.getAccountNumber())).thenReturn(Optional.of(expectedAccount));
+
+        Account actualAccount = accountService.getByAccountNumber(expectedAccount.getAccountNumber());
+
+        assertEquals(expectedAccount, actualAccount);
+    }
+
+    @Test
+    void getByAccountNumber_willThrowUsernameNotFoundException_whenInvokedWithInvalidAccountNumber() {
+        Account expectedAccount = new Account("Ben Dover", "123456", 100.0d, "123456");
+        when(accountRepository.findCustomerByAccountNumber(expectedAccount.getAccountNumber())).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> accountService.getByAccountNumber(expectedAccount.getAccountNumber()));
+    }
+
+    @Test
+    void getById_willReturnAccount() {
+        Integer id = 1;
+        Account expectedAccount = new Account("Ben Dover", "123456", 100.0d, "123456");
+        when(accountRepository.findById((long) id)).thenReturn(Optional.of(expectedAccount));
+
+        Account actualAccount = accountService.getById(id);
+
+        assertEquals(expectedAccount, actualAccount);
+    }
+
+    @Test
+    void getById_returnsNullWhenNotFound() {
+        Integer id = 1;
+        when(accountRepository.findById((long) id)).thenReturn(Optional.empty());
+
+        Account actualAccount = accountService.getById(id);
+
+        assertNull(actualAccount);
+    }
+
 }
-

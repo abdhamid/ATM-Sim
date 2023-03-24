@@ -25,7 +25,7 @@
       <td th:text="${transaction.transactionType}"></td>
       <td th:text="${transaction.transactionCreator}"></td>
       <td th:text="${transaction.amount}"></td>
-      <td th:text="${transaction.timestamp}"></td>
+      <td th:text="${#temporals.format(transaction.timestamp, 'dd-MM-yyyy HH:mm')}"></td>
     </tr>
     </tbody>
   </table>

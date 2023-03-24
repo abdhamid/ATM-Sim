@@ -1,4 +1,4 @@
-package abdhamid.atm.helper;
+package abdhamid.atm.seeder;
 
 import abdhamid.atm.dao.CustomerDao;
 import abdhamid.atm.model.Account;
@@ -12,18 +12,22 @@ import java.util.List;
 import static abdhamid.atm.config.FileConfiguration.CUSTOMER_PATH;
 
 @Configuration
-public class Seeder {
+public class DatabaseSeeder {
     private final AccountService accountService;
     private final CustomerDao customerDao;
+    private final AccountSeeder accountSeeder;
+    private final TransactionSeeder transactionSeeder;
 
-    public Seeder(AccountService accountService) {
+    public DatabaseSeeder(AccountService accountService, AccountSeeder accountSeeder, TransactionSeeder transactionSeeder) {
         this.accountService = accountService;
+        this.accountSeeder = accountSeeder;
+        this.transactionSeeder = transactionSeeder;
         this.customerDao = new CustomerDao();
     }
 
     @Bean
     public CommandLineRunner commandLineRunner() {
-        return args -> customerSeeder();
+        return args -> seeder();
     }
 
     private void customerSeeder() {
@@ -31,5 +35,11 @@ public class Seeder {
         for (Account account : accounts) {
             accountService.save(account);
         }
+    }
+
+    private void seeder() {
+        accountSeeder.generateAccounts();
+        transactionSeeder.generateTransactions();
+        customerSeeder();
     }
 }

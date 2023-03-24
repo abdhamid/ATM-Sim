@@ -14,8 +14,8 @@
     <h2 class="mb-4">ATM Simulation</h2>
     <h5 class="mb-3">Home</h5>
 
-    <h4 th:text="${'Hello, ' + session.customerName}"/>
-    <h4 th:text=" ${'Balance : ' + session.customerBalance}"/>
+    <h4 th:text="${'Hello, ' + currentAccount.getName()}"/>
+    <h4 th:text=" ${'Balance : ' + currentAccount.getBalance()}"/>
 
     <div class="d-grid gap-2">
         <a class="btn btn-light mb-2" href="/withdraw">Withdraw</a>

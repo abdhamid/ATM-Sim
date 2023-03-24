@@ -16,13 +16,10 @@ import static abdhamid.atm.service.AuthService.currentAccount;
 @Controller
 @RequestMapping("/")
 public class ApplicationController {
-    private final TransactionService transactionService;
     private final AuthService authService;
 
 
-    public ApplicationController(TransactionService transactionService,
-                                 AuthService authService) {
-        this.transactionService = transactionService;
+    public ApplicationController(AuthService authService) {
         this.authService = authService;
     }
 
@@ -33,10 +30,9 @@ public class ApplicationController {
     }
 
     @GetMapping
-    public Object homePage(Model model, HttpSession httpSession) {
+    public Object homePage(Model model) {
         currentAccount = authService.getCurrentAccount();
-        httpSession.setAttribute("customerName", currentAccount.getName());
-        httpSession.setAttribute("customerBalance", currentAccount.getBalance());
+        model.addAttribute("currentAccount", currentAccount);
         return "index";
     }
 

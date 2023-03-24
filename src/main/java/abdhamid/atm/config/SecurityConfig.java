@@ -29,6 +29,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
+                .defaultSuccessUrl("/")
                 .and()
                 .logout()
                 .and().build();

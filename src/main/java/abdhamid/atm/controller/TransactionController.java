@@ -3,7 +3,6 @@ package abdhamid.atm.controller;
 import abdhamid.atm.dto.AmountDto;
 import abdhamid.atm.dto.TransferDto;
 import abdhamid.atm.model.Transaction;
-import abdhamid.atm.service.AuthService;
 import abdhamid.atm.service.TransactionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,15 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static abdhamid.atm.helper.InputValidationHelper.validateTransferAmount;
 import static abdhamid.atm.service.AuthService.currentAccount;
 
 @Controller
@@ -46,19 +42,16 @@ public class TransactionController {
 
     @PostMapping("withdraw")
     public Object withdraw(@Valid @ModelAttribute("amount") AmountDto amountDto,
-                           HttpSession httpSession,
                            RedirectAttributes redirectAttributes) {
-        int amount = Integer.parseInt(validateTransferAmount(String.valueOf(amountDto.getAmount()), 1, 1000));
         Transaction withdraw = new Transaction();
         String msg = "";
         boolean valid = false;
         try {
-            withdraw = transactionService.withdraw(amount);
+            withdraw = transactionService.withdraw(currentAccount, amountDto.getAmount());
             valid = true;
         } catch (Exception e) {
             msg = e.getMessage();
         }
-
 
         final RedirectView withdrawView;
         if (valid) {
@@ -67,14 +60,13 @@ public class TransactionController {
             withdrawView = new RedirectView("/withdraw/summary", true);
             redirectAttributes.addFlashAttribute("amount", withdraw.getAmount());
             redirectAttributes.addFlashAttribute("date", withdraw.getTimestamp().format(format));
-            httpSession.setAttribute("customerBalance", currentAccount.getBalance());
+            redirectAttributes.addFlashAttribute("customerBalance", currentAccount.getBalance());
         } else {
             withdrawView = new RedirectView("/withdraw-other", true);
             redirectAttributes.addFlashAttribute("errorStatus", true);
             redirectAttributes.addFlashAttribute("errorMessage", msg);
         }
         return withdrawView;
-
     }
 
     @GetMapping("withdraw-other")
@@ -85,7 +77,6 @@ public class TransactionController {
 
     @PostMapping("withdraw-other")
     public Object withdrawOther(@Valid @ModelAttribute("amount") AmountDto amountDto,
-                                HttpSession httpSession,
                                 RedirectAttributes redirectAttributes) {
         Transaction withdraw = new Transaction();
         String msg = "";
@@ -93,7 +84,7 @@ public class TransactionController {
         boolean valid = false;
 
         try {
-            withdraw = transactionService.withdraw(amountDto.getAmount());
+            withdraw = transactionService.withdraw(currentAccount, amountDto.getAmount());
             valid = true;
         } catch (Exception e) {
             msg = e.getMessage();
@@ -106,14 +97,13 @@ public class TransactionController {
             withdrawView = new RedirectView("/withdraw/summary", true);
             redirectAttributes.addFlashAttribute("amount", withdraw.getAmount());
             redirectAttributes.addFlashAttribute("date", withdraw.getTimestamp().format(format));
-            httpSession.setAttribute("customerBalance", currentAccount.getBalance());
+            redirectAttributes.addFlashAttribute("customerBalance", currentAccount.getBalance());
         } else {
             withdrawView = new RedirectView("/withdraw", true);
             redirectAttributes.addFlashAttribute("errorStatus", true);
             redirectAttributes.addFlashAttribute("errorMessage", msg);
         }
         return withdrawView;
-
     }
 
     @GetMapping("withdraw/summary")
@@ -129,8 +119,7 @@ public class TransactionController {
 
     @PostMapping("transfer")
     public Object transfer(@Valid @ModelAttribute TransferDto transferDto,
-                           RedirectAttributes redirectAttributes,
-                           HttpSession httpSession) {
+                           RedirectAttributes redirectAttributes) {
 
         Transaction transfer = new Transaction();
         String msg = "";
@@ -138,7 +127,7 @@ public class TransactionController {
         boolean valid = false;
 
         try {
-            transfer = transactionService.transfer(transferDto);
+            transfer = transactionService.transfer(currentAccount, transferDto);
             valid = true;
         } catch (Exception e) {
             msg = e.getMessage();

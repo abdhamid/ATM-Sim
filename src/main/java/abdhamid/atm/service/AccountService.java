@@ -2,6 +2,7 @@ package abdhamid.atm.service;
 
 import abdhamid.atm.model.Account;
 import abdhamid.atm.repository.AccountRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -29,6 +30,10 @@ public class AccountService {
     }
 
     public Account getByAccountNumber(String destinationAccount) {
-        return accountRepository.findCustomerByAccountNumber(destinationAccount).orElseThrow(() -> new EntityNotFoundException("Invalid account"));
+        return accountRepository.findCustomerByAccountNumber(destinationAccount).orElseThrow(() -> new UsernameNotFoundException("Invalid account"));
+    }
+
+    public Account getById(Integer id) {
+        return accountRepository.findById(Long.valueOf(id)).orElse(null);
     }
 }

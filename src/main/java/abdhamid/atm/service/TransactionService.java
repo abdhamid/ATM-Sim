@@ -1,7 +1,6 @@
 package abdhamid.atm.service;
 
 import abdhamid.atm.dto.TransferDto;
-import abdhamid.atm.helper.InputValidationHelper;
 import abdhamid.atm.model.Account;
 import abdhamid.atm.model.Transaction;
 import abdhamid.atm.repository.TransactionRepository;
@@ -11,8 +10,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.InputMismatchException;
-
-import static abdhamid.atm.service.AuthService.currentAccount;
 
 @Service
 public class TransactionService {
@@ -26,36 +23,27 @@ public class TransactionService {
 
     //withdraw
     @Transactional
-    public Transaction withdraw(int withdrawAmount) throws Exception {
-        validateWithdrawAmount(withdrawAmount);
+    public Transaction withdraw(Account account, int withdrawAmount) throws Exception {
+        validateTransactionAmount(account, withdrawAmount);
 
-        currentAccount.setBalance(currentAccount.getBalance() - withdrawAmount);
-        accountService.save(currentAccount);
-        Transaction withdraw = new Transaction("DEBIT", currentAccount.getAccountNumber(), (double) withdrawAmount);
-        return transactionRepository.save(withdraw);
-    }
-
-    private void validateWithdrawAmount(int withdrawAmount) {
-        boolean isValidWithdrawAmount = InputValidationHelper.validateTransferAmount(String.valueOf(withdrawAmount), 1, 1000).length() > 10;
-        if (isValidWithdrawAmount) {
-            throw new InputMismatchException(InputValidationHelper.validateTransferAmount(String.valueOf(withdrawAmount), 1, 1000));
-        }
-
-        if (withdrawAmount > currentAccount.getBalance()){
-            throw new InputMismatchException("Insufficient balance $" + currentAccount.getBalance());
-        }
+        account.setBalance(account.getBalance() - withdrawAmount);
+        accountService.save(account);
+        Transaction withdraw = new Transaction("DEBIT", account.getAccountNumber(), (double) withdrawAmount);
+        transactionRepository.save(withdraw);
+        return withdraw;
     }
 
     //transfer
+
     @Transactional
-    public Transaction transfer(TransferDto transferDto) {
+    public Transaction transfer(Account sender, TransferDto transferDto) {
         Account receiver = accountService.getByAccountNumber(transferDto.getDestinationAccount());
 
-        validateWithdrawAmount(transferDto.getAmount());
+        validateTransactionAmount(sender, transferDto.getAmount());
 
-        currentAccount.setBalance(currentAccount.getBalance() - transferDto.getAmount());
-        accountService.save(currentAccount);
-        Transaction transfer = new Transaction("DEBIT", currentAccount.getAccountNumber(), (double) transferDto.getAmount());
+        sender.setBalance(sender.getBalance() - transferDto.getAmount());
+        accountService.save(sender);
+        Transaction transfer = new Transaction("DEBIT", sender.getAccountNumber(), (double) transferDto.getAmount());
         transactionRepository.save(transfer);
 
         receiver.setBalance(receiver.getBalance() + transferDto.getAmount());
@@ -65,10 +53,36 @@ public class TransactionService {
 
         return transfer;
     }
+    //get transaction history
 
-    //get 10 last transaction
     public Page<Transaction> transactionHistory(String accNumber, Pageable page) {
         return transactionRepository.findByAccNumberDesc(accNumber, page);
     }
-    //save to db
+
+    private void validateTransactionAmount(Account account, int transactionAmount) {
+        boolean isValidTransactionAmount = validateTransactionAmount(String.valueOf(transactionAmount), 1, 1000).length() > 10;
+        if (isValidTransactionAmount) {
+            throw new InputMismatchException(validateTransactionAmount(String.valueOf(transactionAmount), 1, 1000));
+        }
+
+        if (transactionAmount > account.getBalance()){
+            throw new InputMismatchException("Insufficient balance $" + account.getBalance());
+        }
+    }
+
+    public String validateTransactionAmount(String amount, int min, int max) {
+        if (!amount.matches("\\d+")) {
+            return "Invalid amount";
+        }
+        else if (Integer.parseInt(amount)%10 != 0) {
+            return "Amount must be in a multiple of 10";
+        }
+        else if (Integer.parseInt(amount) > max) {
+            return "Maximum amount to transfer is $1000";
+        }
+        else if (Integer.parseInt(amount) < min) {
+            return "Minimum amount to transfer is $1";
+        }
+        else return amount;
+    }
 }
