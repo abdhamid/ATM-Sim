@@ -5,7 +5,7 @@
     <title>Withdraw - Other</title>
 </head>
 <body>
-<form th:action="@{/withdraw-other}" th:object="${amount}" method="post">
+<form th:action="@{/withdraw}" th:object="${amount}" method="post">
     <div th:if="${errorStatus}">
         <div th:text="${errorMessage}"/>
     </div>
@@ -15,5 +15,10 @@
     </div>
     <button type="submit">Withdraw</button>
 </form>
+<ul>
+    <li><a href="/withdraw">Back</a></li>
+    <li><a href="/">Home</a></li>
+    <li><a href="/logout">Logout</a></li>
+</ul>
 </body>
 </html>
