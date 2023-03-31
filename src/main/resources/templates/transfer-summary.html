@@ -1,39 +1,45 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <meta charset="UTF-8">
     <title>Transfer Summary</title>
 </head>
-<body>
-<div>
-    <h1>Transfer Summary</h1>
-    <ul>
-        <li>
-            <label>Date :&nbsp;</label>
-            <p th:text="${date}"/>
-        </li>
-        <li>
-            <label>Reference ID :&nbsp;</label>
-            <p th:text="${refId}"/>
-        </li>
-        <li>
-            <label>Receiver :&nbsp;</label>
-            <p th:text="${receiver}"/>
-        </li>
-        <li>
-            <label>Transfer Amount :&nbsp;</label>
-            <p th:text="${amount}"/>
-        </li>
-        <li>
-            <label>Remaining Balance :&nbsp;</label>
-            <p th:text="${customerBalance}"/>
-        </li>
-    </ul>
+<body class="app-box bg-light">
+<div class="d-flex justify-content-center h-100">
+    <div class="card m-3 p-3 d-flex flex-column align-content-around w-50">
+        <h1>Transfer Summary</h1>
+        <ul>
+            <li>
+                <label>Date :&nbsp;</label>
+                <p th:text="${date}"/>
+            </li>
+            <li>
+                <label>Reference ID :&nbsp;</label>
+                <p th:text="${refId}"/>
+            </li>
+            <li>
+                <label>Receiver :&nbsp;</label>
+                <p th:text="${receiver}"/>
+            </li>
+            <li>
+                <label>Transfer Amount :&nbsp;</label>
+                <p th:text="${amount}"/>
+            </li>
+            <li>
+                <label>Remaining Balance :&nbsp;</label>
+                <p th:text="${customerBalance}"/>
+            </li>
+        </ul>
 
-    <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/logout">Logout</a></li>
-    </ul>
+        <div class="d-flex flex-row-reverse mt-5">
+            <ul class="list-group list-group-horizontal align-right">
+                <li class="list-group-item"><a href="/">Home</a></li>
+                <li class="list-group-item"><a href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
 </div>
 
 </body>

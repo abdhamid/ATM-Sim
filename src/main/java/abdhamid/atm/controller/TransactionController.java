@@ -4,6 +4,7 @@ import abdhamid.atm.dto.AmountDto;
 import abdhamid.atm.dto.TransferDto;
 import abdhamid.atm.model.Transaction;
 import abdhamid.atm.service.TransactionService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ import static abdhamid.atm.service.AuthService.currentAccount;
 
 @Controller
 @RequestMapping("/")
+@Slf4j
 public class TransactionController {
     private final TransactionService transactionService;
 
@@ -46,6 +48,7 @@ public class TransactionController {
         Transaction withdraw = new Transaction();
         String msg = "";
         boolean valid = false;
+        log.info("withdraw request");
         try {
             withdraw = transactionService.withdraw(currentAccount, amountDto.getAmount());
             valid = true;
@@ -73,37 +76,6 @@ public class TransactionController {
     public String withdrawOther(Model model) {
         model.addAttribute("amount", new AmountDto());
         return "withdraw-other";
-    }
-
-    @PostMapping("withdraw-other")
-    public Object withdrawOther(@Valid @ModelAttribute("amount") AmountDto amountDto,
-                                RedirectAttributes redirectAttributes) {
-        Transaction withdraw = new Transaction();
-        String msg = "";
-
-        boolean valid = false;
-
-        try {
-            withdraw = transactionService.withdraw(currentAccount, amountDto.getAmount());
-            valid = true;
-        } catch (Exception e) {
-            msg = e.getMessage();
-        }
-
-        final RedirectView withdrawView;
-        if (valid) {
-            DateTimeFormatter format = DateTimeFormatter.ofPattern("E, dd-MMM-yyyy HH:mm a");
-
-            withdrawView = new RedirectView("/withdraw/summary", true);
-            redirectAttributes.addFlashAttribute("amount", withdraw.getAmount());
-            redirectAttributes.addFlashAttribute("date", withdraw.getTimestamp().format(format));
-            redirectAttributes.addFlashAttribute("customerBalance", currentAccount.getBalance());
-        } else {
-            withdrawView = new RedirectView("/withdraw", true);
-            redirectAttributes.addFlashAttribute("errorStatus", true);
-            redirectAttributes.addFlashAttribute("errorMessage", msg);
-        }
-        return withdrawView;
     }
 
     @GetMapping("withdraw/summary")
@@ -163,8 +135,8 @@ public class TransactionController {
         int pageSize = 5;
         Pageable pageable = PageRequest.of(currentPage - 1, pageSize);
         Page<Transaction> transactionHistory = transactionService.transactionHistory(currentAccount.getAccountNumber(), pageable);
-
         model.addAttribute("transactionHistory", transactionHistory);
+        model.addAttribute("currentPage", currentPage);
         int totalPages = transactionHistory.getTotalPages();
         if (totalPages > 0) {
             List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
