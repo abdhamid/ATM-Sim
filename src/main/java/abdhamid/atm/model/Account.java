@@ -65,16 +65,6 @@ public class Account implements UserDetails {
         this.accountNumber = accountNumber;
     }
 
-    @Override
-    public String toString() {
-        return "abdhamid.atm.model.Customer{" +
-                "name=" + name  +
-                ", pin=" + pin  +
-                ", balance=" + balance +
-                ", accountNumber=" + accountNumber +
-                "}\n";
-    }
-
     public Long getId() {
         return id;
     }
@@ -85,7 +75,7 @@ public class Account implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<GrantedAuthority> authoritySet = new HashSet<GrantedAuthority>();
+        Set<GrantedAuthority> authoritySet = new HashSet<>();
         authoritySet.add(new SimpleGrantedAuthority("USER"));
         return authoritySet;
     }
@@ -118,5 +108,13 @@ public class Account implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "name='" + name + '\'' +
+                ", accountNumber='" + accountNumber + '\'' +
+                '}';
     }
 }

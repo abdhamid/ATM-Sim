@@ -13,4 +13,10 @@ public class LoginDto {
     private String accNumber;
     private String accPin;
 
+    @Override
+    public String toString() {
+        return "LoginDto{" +
+                "accNumber='" + accNumber + '\'' +
+                '}';
+    }
 }
