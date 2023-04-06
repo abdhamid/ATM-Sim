@@ -1,6 +1,5 @@
 package abdhamid.atm.service;
 
-import abdhamid.atm.dto.LoginDto;
 import abdhamid.atm.model.Account;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;

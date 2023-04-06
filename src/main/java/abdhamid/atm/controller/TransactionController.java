@@ -60,12 +60,12 @@ public class TransactionController {
         if (valid) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern("E, dd-MMM-yyyy HH:mm a");
 
-            withdrawView = new RedirectView("/withdraw/summary", true);
+            withdrawView = new RedirectView("withdraw/summary", true);
             redirectAttributes.addFlashAttribute("amount", withdraw.getAmount());
             redirectAttributes.addFlashAttribute("date", withdraw.getTimestamp().format(format));
             redirectAttributes.addFlashAttribute("customerBalance", currentAccount.getBalance());
         } else {
-            withdrawView = new RedirectView("/withdraw-other", true);
+            withdrawView = new RedirectView("withdraw-other", true);
             redirectAttributes.addFlashAttribute("errorStatus", true);
             redirectAttributes.addFlashAttribute("errorMessage", msg);
         }
@@ -109,20 +109,19 @@ public class TransactionController {
         if (valid) {
             DateTimeFormatter format = DateTimeFormatter.ofPattern("E, dd-MMM-yyyy HH:mm a");
 
-            withdrawView = new RedirectView("/transfer/summary", true);
+            withdrawView = new RedirectView("transfer/summary", true);
             redirectAttributes.addFlashAttribute("date", transfer.getTimestamp().format(format));
             redirectAttributes.addFlashAttribute("refId", transfer.getId());
             redirectAttributes.addFlashAttribute("receiver", transferDto.getDestinationAccount());
             redirectAttributes.addFlashAttribute("amount", transfer.getAmount());
             redirectAttributes.addFlashAttribute("customerBalance", currentAccount.getBalance().toString());
         } else {
-            withdrawView = new RedirectView("/transfer", true);
+            withdrawView = new RedirectView("transfer", true);
             redirectAttributes.addFlashAttribute("errorStatus", true);
             redirectAttributes.addFlashAttribute("errorMessage", msg);
         }
         return withdrawView;
     }
-
 
     @GetMapping("transfer/summary")
     public Object transferSummary() {

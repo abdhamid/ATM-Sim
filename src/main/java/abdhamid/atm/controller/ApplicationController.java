@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.view.RedirectView;
 
-
 import static abdhamid.atm.service.AuthService.currentAccount;
 
 @Controller
@@ -38,6 +37,6 @@ public class ApplicationController {
     @GetMapping("logout")
     public Object logout() {
         AuthService.logout();
-        return new RedirectView("/login");
+        return new RedirectView("login");
     }
 }
