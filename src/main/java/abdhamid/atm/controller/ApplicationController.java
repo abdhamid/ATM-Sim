@@ -6,9 +6,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.view.RedirectView;
-
-import static abdhamid.atm.service.AuthService.currentAccount;
 
 @Controller
 @RequestMapping("/")
@@ -28,15 +25,7 @@ public class ApplicationController {
 
     @GetMapping
     public Object homePage(Model model) {
-        currentAccount = authService.getCurrentAccount();
-        model.addAttribute("currentAccount", currentAccount);
+        model.addAttribute("currentAccount", authService.getCurrentAccount());
         return "index";
-    }
-
-
-    @GetMapping("logout")
-    public Object logout() {
-        AuthService.logout();
-        return new RedirectView("login");
     }
 }

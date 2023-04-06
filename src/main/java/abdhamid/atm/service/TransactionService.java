@@ -27,14 +27,12 @@ public class TransactionService {
         validateTransactionAmount(account, withdrawAmount);
 
         account.setBalance(account.getBalance() - withdrawAmount);
-        accountService.save(account);
         Transaction withdraw = new Transaction("DEBIT", account.getAccountNumber(), (double) withdrawAmount);
         transactionRepository.save(withdraw);
         return withdraw;
     }
 
     //transfer
-
     @Transactional
     public Transaction transfer(Account sender, TransferDto transferDto) {
         Account receiver = accountService.getByAccountNumber(transferDto.getDestinationAccount());
@@ -42,19 +40,17 @@ public class TransactionService {
         validateTransactionAmount(sender, transferDto.getAmount());
 
         sender.setBalance(sender.getBalance() - transferDto.getAmount());
-        accountService.save(sender);
         Transaction transfer = new Transaction("DEBIT", sender.getAccountNumber(), (double) transferDto.getAmount());
         transactionRepository.save(transfer);
 
         receiver.setBalance(receiver.getBalance() + transferDto.getAmount());
-        accountService.save(receiver);
         Transaction receive = new Transaction("CREDIT", receiver.getAccountNumber(), (double) transferDto.getAmount());
         transactionRepository.save(receive);
 
         return transfer;
     }
-    //get transaction history
 
+    //get transaction history
     public Page<Transaction> transactionHistory(String accNumber, Pageable page) {
         return transactionRepository.findByAccNumberDesc(accNumber, page);
     }

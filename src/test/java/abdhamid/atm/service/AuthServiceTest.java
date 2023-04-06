@@ -40,13 +40,6 @@ class AuthServiceTest {
     }
 
     @Test
-    void logout_willSetCurrentAccountToNull() throws Exception {
-        authService.currentAccount = new Account();
-        AuthService.logout();
-        assertEquals(null, authService.currentAccount);
-    }
-
-    @Test
     void loadByUsername_willReturnAccount() throws Exception {
         Account account = new Account("Ben", "123456", 100.0, "123456");
         when(accountService.getByAccountNumber(account.getAccountNumber())).thenReturn(account);

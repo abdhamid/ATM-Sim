@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService implements UserDetailsService {
     private final AccountService accountService;
-    public static Account currentAccount = null;
-
 
     public AuthService(AccountService accountService) {
         this.accountService = accountService;
@@ -22,10 +20,6 @@ public class AuthService implements UserDetailsService {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         String accNumber = auth.getName();
         return accountService.getByAccountNumber(accNumber);
-    }
-
-    public static void logout() {
-        currentAccount = null;
     }
 
     @Override

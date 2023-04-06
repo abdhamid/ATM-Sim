@@ -3,6 +3,7 @@ package abdhamid.atm.controller;
 import abdhamid.atm.dto.AmountDto;
 import abdhamid.atm.dto.TransferDto;
 import abdhamid.atm.model.Transaction;
+import abdhamid.atm.service.AuthService;
 import abdhamid.atm.service.TransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,16 +25,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static abdhamid.atm.service.AuthService.currentAccount;
-
 @Controller
 @RequestMapping("/")
 @Slf4j
 public class TransactionController {
     private final TransactionService transactionService;
+    private final AuthService authService;
 
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(TransactionService transactionService, AuthService authService) {
         this.transactionService = transactionService;
+        this.authService = authService;
     }
 
     @GetMapping("withdraw")
@@ -50,7 +51,7 @@ public class TransactionController {
         boolean valid = false;
         log.info("withdraw request");
         try {
-            withdraw = transactionService.withdraw(currentAccount, amountDto.getAmount());
+            withdraw = transactionService.withdraw(authService.getCurrentAccount(), amountDto.getAmount());
             valid = true;
         } catch (Exception e) {
             msg = e.getMessage();
@@ -63,7 +64,7 @@ public class TransactionController {
             withdrawView = new RedirectView("withdraw/summary", true);
             redirectAttributes.addFlashAttribute("amount", withdraw.getAmount());
             redirectAttributes.addFlashAttribute("date", withdraw.getTimestamp().format(format));
-            redirectAttributes.addFlashAttribute("customerBalance", currentAccount.getBalance());
+            redirectAttributes.addFlashAttribute("customerBalance", authService.getCurrentAccount().getBalance());
         } else {
             withdrawView = new RedirectView("withdraw-other", true);
             redirectAttributes.addFlashAttribute("errorStatus", true);
@@ -99,7 +100,7 @@ public class TransactionController {
         boolean valid = false;
 
         try {
-            transfer = transactionService.transfer(currentAccount, transferDto);
+            transfer = transactionService.transfer(authService.getCurrentAccount(), transferDto);
             valid = true;
         } catch (Exception e) {
             msg = e.getMessage();
@@ -114,7 +115,7 @@ public class TransactionController {
             redirectAttributes.addFlashAttribute("refId", transfer.getId());
             redirectAttributes.addFlashAttribute("receiver", transferDto.getDestinationAccount());
             redirectAttributes.addFlashAttribute("amount", transfer.getAmount());
-            redirectAttributes.addFlashAttribute("customerBalance", currentAccount.getBalance().toString());
+            redirectAttributes.addFlashAttribute("customerBalance", authService.getCurrentAccount().getBalance().toString());
         } else {
             withdrawView = new RedirectView("transfer", true);
             redirectAttributes.addFlashAttribute("errorStatus", true);
@@ -133,7 +134,7 @@ public class TransactionController {
         int currentPage = page.orElse(1);
         int pageSize = 5;
         Pageable pageable = PageRequest.of(currentPage - 1, pageSize);
-        Page<Transaction> transactionHistory = transactionService.transactionHistory(currentAccount.getAccountNumber(), pageable);
+        Page<Transaction> transactionHistory = transactionService.transactionHistory(authService.getCurrentAccount().getAccountNumber(), pageable);
         model.addAttribute("transactionHistory", transactionHistory);
         model.addAttribute("currentPage", currentPage);
         int totalPages = transactionHistory.getTotalPages();
